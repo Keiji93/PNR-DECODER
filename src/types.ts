@@ -18,8 +18,31 @@ export interface FlightSegment {
   status?: string;
 }
 
+export interface TrainSegment {
+  date: string;
+  trainNumber: string;
+  departureStation: string;
+  departureTime: string;
+  arrivalStation: string;
+  arrivalTime: string;
+  cabinClass?: string;
+  tarif?: string;
+  transfer?: string;
+  duration?: string;
+  price?: string;
+}
+
+export interface PriceBreakdown {
+  ticket?: string;
+  accommodation?: string;
+  ancillaryServices?: string;
+  totalPrice?: string;
+}
+
 export interface ParsedPNR {
   bookingReference: string;
   passengers: string[];
-  flights: FlightSegment[];
+  flights?: FlightSegment[];
+  trains?: TrainSegment[];
+  priceBreakdown?: PriceBreakdown;
 }

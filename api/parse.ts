@@ -19,9 +19,9 @@ export default async function handler(req: any, res: any) {
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: `Parse the following raw GDS PNR text and extract the booking reference, passengers, and flight segments. If some information is missing, do your best to infer or leave it blank. Raw PNR:\n\n${rawPnr}`,
+      contents: `Parse the following raw GDS PNR or train itinerary text and extract the booking reference, passengers, flight segments, train segments, and price breakdown. If some information is missing, do your best to infer or leave it blank. Raw PNR:\n\n${rawPnr}`,
       config: {
-        systemInstruction: "You are an expert travel agent system. Your job is to parse raw, cryptic PNR (Passenger Name Record) strings from systems like Amadeus, Sabre, and Galileo, and extract the structured data perfectly.",
+        systemInstruction: "You are an expert travel agent system. Your job is to parse raw, cryptic PNR (Passenger Name Record) strings from systems like Amadeus, Sabre, Galileo, or train itineraries (like SNCF), and extract the structured data perfectly.",
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
@@ -57,9 +57,38 @@ export default async function handler(req: any, res: any) {
                 },
                 required: ["airline", "flightNumber", "departureAirportCode", "arrivalAirportCode", "departureDate", "departureTime", "arrivalTime"]
               }
+            },
+            trains: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  date: { type: Type.STRING, description: "Date of the train journey (e.g., '18 Mars'). Translate to French format like '18 Mars'." },
+                  trainNumber: { type: Type.STRING, description: "Train number (e.g., 'SNF 6111')." },
+                  departureStation: { type: Type.STRING, description: "Departure station name." },
+                  departureTime: { type: Type.STRING, description: "Departure time." },
+                  arrivalStation: { type: Type.STRING, description: "Arrival station name." },
+                  arrivalTime: { type: Type.STRING, description: "Arrival time." },
+                  cabinClass: { type: Type.STRING, description: "Cabin class (e.g., '1st' or '2nd')." },
+                  tarif: { type: Type.STRING, description: "Tarif type, such as 'Flexible', 'Semi-Flexible', 'Tarif FLEX PREMIÈRE', etc." },
+                  transfer: { type: Type.STRING, description: "Transfer info, e.g., 'Direct'." },
+                  duration: { type: Type.STRING, description: "Duration of the journey (e.g., '3h19')." },
+                  price: { type: Type.STRING, description: "Price for this segment." }
+                },
+                required: ["date", "trainNumber", "departureStation", "departureTime", "arrivalStation", "arrivalTime"]
+              }
+            },
+            priceBreakdown: {
+              type: Type.OBJECT,
+              properties: {
+                ticket: { type: Type.STRING },
+                accommodation: { type: Type.STRING },
+                ancillaryServices: { type: Type.STRING },
+                totalPrice: { type: Type.STRING }
+              }
             }
           },
-          required: ["bookingReference", "passengers", "flights"]
+          required: ["bookingReference", "passengers"]
         }
       }
     });

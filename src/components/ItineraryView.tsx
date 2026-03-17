@@ -1,7 +1,7 @@
-import { Copy, Check, FileText, Plus, Trash2, Loader2 } from 'lucide-react';
-import { ParsedPNR } from '../types';
+import { Copy, Check, FileText, Plus, Trash2, Loader2, Train } from 'lucide-react';
+import { ParsedPNR, TrainSegment } from '../types';
 import { motion } from 'motion/react';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { parsePNR } from '../services/geminiService';
 
 type OfferOption = {
@@ -15,6 +15,11 @@ type OfferOption = {
 };
 
 export function ItineraryView({ data }: { data: ParsedPNR }) {
+  const [primaryItinerary, setPrimaryItinerary] = useState<ParsedPNR>(data);
+  useEffect(() => {
+    setPrimaryItinerary(data);
+  }, [data]);
+
   const [copied, setCopied] = useState(false);
   const [copiedOffer, setCopiedOffer] = useState(false);
   const [copiedMod, setCopiedMod] = useState(false);
@@ -76,6 +81,24 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
     });
   };
 
+  const handleTrainTarifChange = (itineraryIndex: number, trainIndex: number, newTarif: string) => {
+    if (itineraryIndex === 0) {
+      setPrimaryItinerary(prev => {
+        const newTrains = [...(prev.trains || [])];
+        newTrains[trainIndex] = { ...newTrains[trainIndex], tarif: newTarif };
+        return { ...prev, trains: newTrains };
+      });
+    } else {
+      setAdditionalItineraries(prev => {
+        const newItineraries = [...prev];
+        const newTrains = [...(newItineraries[itineraryIndex - 1].trains || [])];
+        newTrains[trainIndex] = { ...newTrains[trainIndex], tarif: newTarif };
+        newItineraries[itineraryIndex - 1] = { ...newItineraries[itineraryIndex - 1], trains: newTrains };
+        return newItineraries;
+      });
+    }
+  };
+
   const handleAddItinerary = async () => {
     if (!newPnrRaw.trim()) return;
     setIsParsingPnr(true);
@@ -114,16 +137,29 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
   };
 
   // Generate route title
-  const allItineraries = [data, ...additionalItineraries];
-  const routeCities = data.flights.map(f => f.departureCity || f.departureAirportCode);
-  if (data.flights.length > 0) {
-    routeCities.push(data.flights[data.flights.length - 1].arrivalCity || data.flights[data.flights.length - 1].arrivalAirportCode);
-  }
-  const routeTitle = routeCities.join(' → ');
+  const allItineraries = [primaryItinerary, ...additionalItineraries];
+  
+  const getRouteTitle = (itinerary: ParsedPNR) => {
+    const flights = itinerary.flights || [];
+    const trains = itinerary.trains || [];
+    
+    if (flights.length > 0) {
+      const routeCities = flights.map(f => f.departureCity || f.departureAirportCode);
+      routeCities.push(flights[flights.length - 1].arrivalCity || flights[flights.length - 1].arrivalAirportCode);
+      return routeCities.join(' → ');
+    } else if (trains.length > 0) {
+      const routeCities = trains.map(t => t.departureStation);
+      routeCities.push(trains[trains.length - 1].arrivalStation);
+      return routeCities.join(' → ');
+    }
+    return 'Unknown Route';
+  };
 
-  const getSegmentPrefix = (idx: number, total: number) => {
-    if (idx === 0) return "Outbound: ";
-    if (idx === total - 1 && total > 1) return "Return: ";
+  const routeTitle = getRouteTitle(primaryItinerary);
+
+  const getSegmentPrefix = (idx: number, total: number, isTrain: boolean = false) => {
+    if (idx === 0) return isTrain ? "Aller: " : "Outbound: ";
+    if (idx === total - 1 && total > 1) return isTrain ? "Retour: " : "Return: ";
     return `Segment ${idx + 1}: `;
   };
 
@@ -191,8 +227,11 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
         html += `<h3 style="font-size: 15px; font-weight: bold; margin-bottom: 16px; color: #334155;">Itinerary ${itIdx + 1}</h3>`;
       }
       
-      itinerary.flights.forEach((flight, idx) => {
-        const prefix = getSegmentPrefix(idx, itinerary.flights.length);
+      const flights = itinerary.flights || [];
+      const trains = itinerary.trains || [];
+
+      flights.forEach((flight, idx) => {
+        const prefix = getSegmentPrefix(idx, flights.length);
         const dep = flight.departureCity || flight.departureAirportCode;
         const arr = flight.arrivalCity || flight.arrivalAirportCode;
 
@@ -233,6 +272,52 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                 <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; color: #475569;">${flight.duration || '-'}</td>
                 <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; color: #475569;">${flight.layover || '-'}</td>
                 <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; color: #475569;">${flight.aircraft || '-'}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        `;
+      });
+
+      trains.forEach((train, idx) => {
+        const prefix = getSegmentPrefix(idx, trains.length, true);
+        const dep = train.departureStation;
+        const arr = train.arrivalStation;
+
+        html += `
+        <div style="margin-bottom: 32px;">
+          <div style="margin-bottom: 8px; font-size: 15px;">
+            <span style="font-weight: bold; text-decoration: underline;">${prefix}${dep} &rarr; ${arr}</span>
+          </div>
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left;">
+            <thead>
+              <tr style="background-color: #f8fafc;">
+                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Date</th>
+                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Train</th>
+                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 20%;">Départ</th>
+                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 20%;">Arrivée</th>
+                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Class</th>
+                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Tarif</th>
+                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Transfert</th>
+                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top;">${train.date || '-'}</td>
+                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top;">${train.trainNumber || '-'}</td>
+                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top;">
+                  <div style="color: #334155;">${train.departureStation}</div>
+                  <div style="font-weight: bold; margin-top: 4px;">${train.departureTime || '-'}</div>
+                </td>
+                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top;">
+                  <div style="color: #334155;">${train.arrivalStation}</div>
+                  <div style="font-weight: bold; margin-top: 4px;">${train.arrivalTime || '-'}</div>
+                </td>
+                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; color: #475569;">${train.cabinClass || '-'}</td>
+                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; color: #475569;">${train.tarif || '-'}</td>
+                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; color: #475569;">${train.transfer || 'Direct'}</td>
+                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; color: #475569;">${train.duration || '-'}</td>
               </tr>
             </tbody>
           </table>
@@ -333,14 +418,28 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
       if (allItineraries.length > 1) {
         text += `--- Itinerary ${itIdx + 1} ---\n\n`;
       }
-      itinerary.flights.forEach((flight, idx) => {
-        const prefix = getSegmentPrefix(idx, itinerary.flights.length);
+      
+      const flights = itinerary.flights || [];
+      const trains = itinerary.trains || [];
+
+      flights.forEach((flight, idx) => {
+        const prefix = getSegmentPrefix(idx, flights.length);
         const dep = flight.departureCity || flight.departureAirportCode;
         const arr = flight.arrivalCity || flight.arrivalAirportCode;
 
         text += `${prefix}${dep} -> ${arr}   ${flight.duration || ''}\n`;
         text += `Date\tFlight\tCarrier\tDeparts\tArrives\tCabin\tDuration\tLayover\tAircraft\n`;
         text += `${flight.departureDate || '-'}\t${flight.flightNumber || '-'}\t${flight.airline || '-'}\t${flight.departureAirportCode} ${flight.departureTime || '-'}\t${flight.arrivalAirportCode} ${flight.arrivalTime || '-'}\t${flight.cabinClass || '-'}\t${flight.duration || '-'}\t${flight.layover || '-'}\t${flight.aircraft || '-'}\n\n`;
+      });
+
+      trains.forEach((train, idx) => {
+        const prefix = getSegmentPrefix(idx, trains.length, true);
+        const dep = train.departureStation;
+        const arr = train.arrivalStation;
+
+        text += `${prefix}${dep} -> ${arr}\n`;
+        text += `Date\tTrain\tDépart\tArrivée\tClass\tTarif\tTransfert\tDuration\n`;
+        text += `${train.date || '-'}\t${train.trainNumber || '-'}\t${train.departureStation} ${train.departureTime || '-'}\t${train.arrivalStation} ${train.arrivalTime || '-'}\t${train.cabinClass || '-'}\t${train.tarif || '-'}\t${train.transfer || 'Direct'}\t${train.duration || '-'}\n\n`;
       });
 
       if (type === 'offer' || type === 'modification') {
@@ -429,18 +528,16 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
   };
 
   const renderItineraryTable = (itinerary: ParsedPNR, index: number, isAdditional: boolean = false) => {
-    const routeCities = itinerary.flights.map(f => f.departureCity || f.departureAirportCode);
-    if (itinerary.flights.length > 0) {
-      routeCities.push(itinerary.flights[itinerary.flights.length - 1].arrivalCity || itinerary.flights[itinerary.flights.length - 1].arrivalAirportCode);
-    }
-    const routeTitle = routeCities.join(' → ');
+    const routeTitle = getRouteTitle(itinerary);
+    const flights = itinerary.flights || [];
+    const trains = itinerary.trains || [];
 
     return (
       <div key={index} className={`bg-white shadow-sm border border-slate-200 p-8 overflow-x-auto ${isAdditional ? 'rounded-xl mt-6' : 'rounded-b-xl'}`}>
         <div className="mb-8 flex justify-between items-start">
           <div>
             <h2 className="text-lg font-bold text-slate-900">
-              {isAdditional ? `Itinerary ${index + 1}: ${routeTitle}` : `Flight Itinerary: ${routeTitle}`}
+              {isAdditional ? `Itinerary ${index + 1}: ${routeTitle}` : `Itinerary: ${routeTitle}`}
             </h2>
             {itinerary.passengers.length > 0 && (
               <p className="text-sm text-slate-600 mt-1">Passengers: {itinerary.passengers.join(', ')}</p>
@@ -460,11 +557,11 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
           )}
         </div>
 
-        {itinerary.flights.map((flight, idx) => (
-          <div key={idx} className="mb-10 last:mb-0">
+        {flights.map((flight, idx) => (
+          <div key={`flight-${idx}`} className="mb-10 last:mb-0">
             <div className="flex items-baseline gap-3 mb-4">
               <h3 className="text-base font-bold text-slate-900 underline decoration-slate-300 underline-offset-4">
-                {getSegmentPrefix(idx, itinerary.flights.length)}{flight.departureCity || flight.departureAirportCode} → {flight.arrivalCity || flight.arrivalAirportCode}
+                {getSegmentPrefix(idx, flights.length)}{flight.departureCity || flight.departureAirportCode} → {flight.arrivalCity || flight.arrivalAirportCode}
               </h3>
               {flight.duration && <span className="text-slate-800 font-medium">{flight.duration}</span>}
             </div>
@@ -505,10 +602,90 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
             </table>
           </div>
         ))}
+
+        {trains.map((train, idx) => (
+          <div key={`train-${idx}`} className="mb-10 last:mb-0">
+            <div className="flex items-baseline gap-3 mb-4">
+              <h3 className="text-base font-bold text-slate-900 underline decoration-slate-300 underline-offset-4">
+                {getSegmentPrefix(idx, trains.length, true)}{train.departureStation} → {train.arrivalStation}
+              </h3>
+            </div>
+            
+            <table className="w-full text-left border-collapse min-w-[900px]">
+              <thead>
+                <tr className="bg-slate-50 border-y border-slate-200 text-sm text-slate-800">
+                  <th className="py-2 px-3 font-medium w-[10%]">Date</th>
+                  <th className="py-2 px-3 font-medium w-[10%]">Train</th>
+                  <th className="py-2 px-3 font-medium w-[20%]">Départ</th>
+                  <th className="py-2 px-3 font-medium w-[20%]">Arrivée</th>
+                  <th className="py-2 px-3 font-medium w-[10%]">Class</th>
+                  <th className="py-2 px-3 font-medium w-[10%]">Tarif</th>
+                  <th className="py-2 px-3 font-medium w-[10%]">Transfert</th>
+                  <th className="py-2 px-3 font-medium w-[10%]">Duration</th>
+                </tr>
+              </thead>
+              <tbody className="text-sm text-slate-900">
+                <tr className="border-b border-slate-100">
+                  <td className="py-4 px-3 align-top">{train.date}</td>
+                  <td className="py-4 px-3 align-top">{train.trainNumber}</td>
+                  <td className="py-4 px-3 align-top">
+                    <div className="text-slate-700">{train.departureStation}</div>
+                    <div className="font-bold mt-1">{train.departureTime}</div>
+                  </td>
+                  <td className="py-4 px-3 align-top">
+                    <div className="text-slate-700">{train.arrivalStation}</div>
+                    <div className="font-bold mt-1">{train.arrivalTime}</div>
+                  </td>
+                  <td className="py-4 px-3 align-top text-slate-600">{train.cabinClass || '-'}</td>
+                  <td className="py-4 px-3 align-top text-slate-600">
+                    <select 
+                      value={train.tarif || ''} 
+                      onChange={(e) => handleTrainTarifChange(index, idx, e.target.value)}
+                      className="border border-slate-300 rounded px-2 py-1 text-sm bg-white"
+                    >
+                      <option value="">Select...</option>
+                      <option value="Flexible">Flexible</option>
+                      <option value="Semi-Flexible">Semi-Flexible</option>
+                      <option value="Non-Flexible">Non-Flexible</option>
+                      <option value="Tarif FLEX PREMIÈRE">Tarif FLEX PREMIÈRE</option>
+                      <option value="Tarif STANDARD SECONDE">Tarif STANDARD SECONDE</option>
+                    </select>
+                  </td>
+                  <td className="py-4 px-3 align-top text-slate-600">{train.transfer || 'Direct'}</td>
+                  <td className="py-4 px-3 align-top text-slate-600">{train.duration || '-'}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        ))}
         
-        {itinerary.flights.length === 0 && (
+        {flights.length === 0 && trains.length === 0 && (
           <div className="text-center p-8 text-slate-500">
-            No flight segments could be parsed.
+            No flight or train segments could be parsed.
+          </div>
+        )}
+
+        {itinerary.priceBreakdown && (
+          <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-lg max-w-sm ml-auto">
+            <h4 className="text-sm font-bold text-slate-800 mb-3">Price Breakdown</h4>
+            <div className="space-y-2 text-sm text-slate-600">
+              <div className="flex justify-between">
+                <span>Ticket:</span>
+                <span className="font-medium text-slate-900">{itinerary.priceBreakdown.ticket || '-'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Accommodation:</span>
+                <span className="font-medium text-slate-900">{itinerary.priceBreakdown.accommodation || '-'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Ancillary Services:</span>
+                <span className="font-medium text-slate-900">{itinerary.priceBreakdown.ancillaryServices || '-'}</span>
+              </div>
+              <div className="flex justify-between pt-2 border-t border-slate-200 mt-2">
+                <span className="font-bold text-slate-800">Total Price:</span>
+                <span className="font-bold text-slate-900">{itinerary.priceBreakdown.totalPrice || '-'}</span>
+              </div>
+            </div>
           </div>
         )}
 
