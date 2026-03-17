@@ -90,9 +90,13 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
       }));
       setNewPnrRaw('');
       setIsAddingItinerary(false);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setPnrError('Failed to parse PNR. Please check the text and try again.');
+      if (err.message && err.message.includes('GEMINI_API_KEY')) {
+        setPnrError(err.message);
+      } else {
+        setPnrError('Failed to parse PNR. Please check the text and try again.');
+      }
     } finally {
       setIsParsingPnr(false);
     }

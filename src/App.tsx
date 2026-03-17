@@ -19,9 +19,13 @@ export default function App() {
     try {
       const data = await parsePNR(rawPnr);
       setParsedData(data);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError('Failed to parse PNR. Please check the text and try again.');
+      if (err.message && err.message.includes('GEMINI_API_KEY')) {
+        setError(err.message);
+      } else {
+        setError('Failed to parse PNR. Please check the text and try again.');
+      }
     } finally {
       setIsLoading(false);
     }

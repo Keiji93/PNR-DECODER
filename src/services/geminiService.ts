@@ -1,9 +1,21 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { ParsedPNR } from '../types';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let aiClient: GoogleGenAI | null = null;
+
+function getAI(): GoogleGenAI {
+  if (!aiClient) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY is missing. Please add it to your environment variables in Vercel.");
+    }
+    aiClient = new GoogleGenAI({ apiKey });
+  }
+  return aiClient;
+}
 
 export async function parsePNR(rawPnr: string): Promise<ParsedPNR> {
+  const ai = getAI();
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
     contents: `Parse the following raw GDS PNR text and extract the booking reference, passengers, and flight segments. If some information is missing, do your best to infer or leave it blank. Raw PNR:\n\n${rawPnr}`,
