@@ -60,7 +60,8 @@ export default async function handler(req: any, res: any) {
                       duration: { type: Type.STRING, description: "Flight duration (e.g., '4h 30m')." },
                       layover: { type: Type.STRING, description: "Layover time if applicable, otherwise '-'." },
                       aircraft: { type: Type.STRING, description: "Aircraft type (e.g., 'Airbus A321-100/200 Ceo')." },
-                      status: { type: Type.STRING, description: "Flight status (e.g., Confirmed, HK)." }
+                      status: { type: Type.STRING, description: "Flight status (e.g., Confirmed, HK)." },
+                      price: { type: Type.STRING, description: "Price for this segment." }
                     },
                     required: ["airline", "flightNumber", "departureAirportCode", "arrivalAirportCode", "departureDate", "departureTime", "arrivalTime"]
                   }

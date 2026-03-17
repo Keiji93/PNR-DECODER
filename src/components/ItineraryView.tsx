@@ -275,6 +275,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
               </tr>
             </tbody>
           </table>
+          ${flight.price ? `<div style="margin-top: 12px; text-align: right; font-size: 14px; font-weight: bold; color: #0f172a;">Price: ${flight.price}</div>` : ''}
         </div>
         `;
       });
@@ -321,6 +322,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
               </tr>
             </tbody>
           </table>
+          ${train.price ? `<div style="margin-top: 12px; text-align: right; font-size: 14px; font-weight: bold; color: #0f172a;">Price: ${train.price}</div>` : ''}
         </div>
         `;
       });
@@ -429,7 +431,9 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
 
         text += `${prefix}${dep} -> ${arr}   ${flight.duration || ''}\n`;
         text += `Date\tFlight\tCarrier\tDeparts\tArrives\tCabin\tDuration\tLayover\tAircraft\n`;
-        text += `${flight.departureDate || '-'}\t${flight.flightNumber || '-'}\t${flight.airline || '-'}\t${flight.departureAirportCode} ${flight.departureTime || '-'}\t${flight.arrivalAirportCode} ${flight.arrivalTime || '-'}\t${flight.cabinClass || '-'}\t${flight.duration || '-'}\t${flight.layover || '-'}\t${flight.aircraft || '-'}\n\n`;
+        text += `${flight.departureDate || '-'}\t${flight.flightNumber || '-'}\t${flight.airline || '-'}\t${flight.departureAirportCode} ${flight.departureTime || '-'}\t${flight.arrivalAirportCode} ${flight.arrivalTime || '-'}\t${flight.cabinClass || '-'}\t${flight.duration || '-'}\t${flight.layover || '-'}\t${flight.aircraft || '-'}\n`;
+        if (flight.price) text += `Price: ${flight.price}\n`;
+        text += `\n`;
       });
 
       trains.forEach((train, idx) => {
@@ -439,7 +443,9 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
 
         text += `${prefix}${dep} -> ${arr}\n`;
         text += `Date\tTrain\tDépart\tArrivée\tClass\tTarif\tTransfert\tDuration\n`;
-        text += `${train.date || '-'}\t${train.trainNumber || '-'}\t${train.departureStation} ${train.departureTime || '-'}\t${train.arrivalStation} ${train.arrivalTime || '-'}\t${train.cabinClass || '-'}\t${train.tarif || '-'}\t${train.transfer || 'Direct'}\t${train.duration || '-'}\n\n`;
+        text += `${train.date || '-'}\t${train.trainNumber || '-'}\t${train.departureStation} ${train.departureTime || '-'}\t${train.arrivalStation} ${train.arrivalTime || '-'}\t${train.cabinClass || '-'}\t${train.tarif || '-'}\t${train.transfer || 'Direct'}\t${train.duration || '-'}\n`;
+        if (train.price) text += `Price: ${train.price}\n`;
+        text += `\n`;
       });
 
       if (type === 'offer' || type === 'modification') {
@@ -600,6 +606,13 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                 </tr>
               </tbody>
             </table>
+            {flight.price && (
+              <div className="mt-4 flex justify-end">
+                <span className="inline-block bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-sm font-bold text-slate-800">
+                  Price: {flight.price}
+                </span>
+              </div>
+            )}
           </div>
         ))}
 
@@ -656,6 +669,13 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                 </tr>
               </tbody>
             </table>
+            {train.price && (
+              <div className="mt-4 flex justify-end">
+                <span className="inline-block bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-sm font-bold text-slate-800">
+                  Price: {train.price}
+                </span>
+              </div>
+            )}
           </div>
         ))}
         

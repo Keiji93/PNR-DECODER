@@ -16,6 +16,7 @@ export interface FlightSegment {
   layover?: string;
   aircraft?: string;
   status?: string;
+  price?: string;
 }
 
 export interface TrainSegment {
