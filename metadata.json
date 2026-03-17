@@ -1,0 +1,5 @@
+{
+  "name": "PNR Decoder",
+  "description": "Convert raw, cryptic PNRs from GDS systems into clean, readable travel itineraries.",
+  "requestFramePermissions": []
+}
