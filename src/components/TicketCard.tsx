@@ -31,7 +31,7 @@ export function TicketCard({ segment }: { segment: FlightSegment }) {
           <p className="text-sm font-medium text-slate-700 mt-1">{segment.departureCity || 'Departure'}</p>
           <div className="flex items-center gap-1.5 mt-2 text-sm text-slate-500">
             <Clock className="w-4 h-4" />
-            <span>{segment.departureDateTime}</span>
+            <span>{segment.departureDate} {segment.departureTime}</span>
           </div>
         </div>
 
@@ -49,7 +49,7 @@ export function TicketCard({ segment }: { segment: FlightSegment }) {
           <p className="text-sm font-medium text-slate-700 mt-1">{segment.arrivalCity || 'Arrival'}</p>
           <div className="flex items-center justify-end gap-1.5 mt-2 text-sm text-slate-500">
             <Clock className="w-4 h-4" />
-            <span>{segment.arrivalDateTime}</span>
+            <span>{segment.arrivalDate} {segment.arrivalTime}</span>
           </div>
         </div>
       </div>
