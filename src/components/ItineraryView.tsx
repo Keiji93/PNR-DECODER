@@ -92,11 +92,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
       setIsAddingItinerary(false);
     } catch (err: any) {
       console.error(err);
-      if (err.message && err.message.includes('GEMINI_API_KEY')) {
-        setPnrError(err.message);
-      } else {
-        setPnrError('Failed to parse PNR. Please check the text and try again.');
-      }
+      setPnrError(`Error: ${err.message || 'Failed to parse PNR. Please check the text and try again.'}`);
     } finally {
       setIsParsingPnr(false);
     }
