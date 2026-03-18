@@ -1026,7 +1026,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
 
       {/* Table Content */}
       <div ref={tableRef}>
-        {renderItineraryTable(data, 0)}
+        {renderItineraryTable(primaryItinerary, 0)}
         {additionalItineraries.map((itinerary, idx) => renderItineraryTable(itinerary, idx + 1, true))}
         
         <div className="mt-6">
