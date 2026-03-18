@@ -352,37 +352,37 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
             <span style="font-weight: bold; text-decoration: underline;">${prefix}${dep} &rarr; ${arr}</span>
             ${flight.duration ? `<span style="margin-left: 12px; font-weight: normal;">${flight.duration}</span>` : ''}
           </div>
-          <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left;">
+          <table border="0" cellpadding="0" cellspacing="0" width="100%" style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left;">
             <thead>
-              <tr style="background-color: #f8fafc;">
-                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Date</th>
-                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 8%;">Flight</th>
-                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 12%;">Carrier</th>
-                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 22%;">Departs</th>
-                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 22%;">Arrives</th>
-                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 8%;">Cabin</th>
-                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 8%;">Duration</th>
-                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 6%;">Layover</th>
-                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 14%;">Aircraft</th>
+              <tr style="background-color: #f8fafc;" bgcolor="#f8fafc">
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Date</th>
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 8%;">Flight</th>
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 12%;">Carrier</th>
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 22%;">Departs</th>
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 22%;">Arrives</th>
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 8%;">Cabin</th>
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 8%;">Duration</th>
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 6%;">Layover</th>
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 14%;">Aircraft</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top;">${flight.departureDate || '-'}</td>
-                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top;">${flight.flightNumber || '-'}</td>
-                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; font-weight: bold; font-style: italic; color: #334155;">${flight.airline || '-'}</td>
-                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top;">
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top;">${flight.departureDate || '-'}</td>
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top;">${flight.flightNumber || '-'}</td>
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top; font-weight: bold; font-style: italic; color: #334155;">${flight.airline || '-'}</td>
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top;">
                   <div style="color: #334155;">${flight.departureAirportName || flight.departureAirportCode} (${flight.departureAirportCode})</div>
                   <div style="font-weight: bold; margin-top: 4px;">${flight.departureTime || '-'}</div>
                 </td>
-                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top;">
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top;">
                   <div style="color: #334155;">${flight.arrivalAirportName || flight.arrivalAirportCode} (${flight.arrivalAirportCode})</div>
                   <div style="font-weight: bold; margin-top: 4px;">${flight.arrivalTime || '-'}</div>
                 </td>
-                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; color: #475569;">${flight.cabinClass || '-'}</td>
-                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; color: #475569;">${flight.duration || '-'}</td>
-                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; color: #475569;">${flight.layover || '-'}</td>
-                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; color: #475569;">${flight.aircraft || '-'}</td>
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top; color: #475569;">${flight.cabinClass || '-'}</td>
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top; color: #475569;">${flight.duration || '-'}</td>
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top; color: #475569;">${flight.layover || '-'}</td>
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top; color: #475569;">${flight.aircraft || '-'}</td>
               </tr>
             </tbody>
           </table>
@@ -401,35 +401,35 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
           <div style="margin-bottom: 8px; font-size: 15px;">
             <span style="font-weight: bold; text-decoration: underline;">${prefix}${dep} &rarr; ${arr}</span>
           </div>
-          <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left;">
+          <table border="0" cellpadding="0" cellspacing="0" width="100%" style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left;">
             <thead>
-              <tr style="background-color: #f8fafc;">
-                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Date</th>
-                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Train</th>
-                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 20%;">Départ</th>
-                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 20%;">Arrivée</th>
-                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Classe</th>
-                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Tarif</th>
-                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Transfert</th>
-                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Durée</th>
+              <tr style="background-color: #f8fafc;" bgcolor="#f8fafc">
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Date</th>
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Train</th>
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 20%;">Départ</th>
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 20%;">Arrivée</th>
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Classe</th>
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Tarif</th>
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Transfert</th>
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Durée</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top;">${train.date || '-'}</td>
-                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top;">${train.trainNumber || '-'}</td>
-                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top;">
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top;">${train.date || '-'}</td>
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top;">${train.trainNumber || '-'}</td>
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top;">
                   <div style="color: #334155;">${train.departureStation}</div>
                   <div style="font-weight: bold; margin-top: 4px;">${train.departureTime || '-'}</div>
                 </td>
-                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top;">
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top;">
                   <div style="color: #334155;">${train.arrivalStation}</div>
                   <div style="font-weight: bold; margin-top: 4px;">${train.arrivalTime || '-'}</div>
                 </td>
-                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; color: #475569;">${train.cabinClass || '-'}</td>
-                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; color: #475569;">${train.tarif || '-'}</td>
-                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; color: #475569;">${train.transfer || 'Direct'}</td>
-                <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; color: #475569;">${train.duration || '-'}</td>
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top; color: #475569;">${train.cabinClass || '-'}</td>
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top; color: #475569;">${train.tarif || '-'}</td>
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top; color: #475569;">${train.transfer || 'Direct'}</td>
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top; color: #475569;">${train.duration || '-'}</td>
               </tr>
             </tbody>
           </table>
