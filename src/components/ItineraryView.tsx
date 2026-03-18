@@ -7,11 +7,123 @@ import { parsePNR } from '../services/geminiService';
 type OfferOption = {
   id: string;
   totalPrice: string;
+  cabin: string;
   baggage: string;
   changesOption: 'fee' | 'free';
   changesFee: string;
   refundabilityOption: 'non_refundable' | 'fully_refundable' | 'refundable_fee';
   refundabilityFee: string;
+};
+
+const getIntroSentence = (language: 'en' | 'fr', type: 'offer' | 'modification', hasFlights: boolean, hasTrains: boolean, totalOffers: number, variantIndex: number) => {
+  const isMultiple = totalOffers > 1;
+  
+  if (type === 'modification') {
+    if (language === 'fr') {
+      const variants = [
+        `Veuillez trouver ci-dessous votre nouvel itinéraire proposé ainsi que le coût de la modification :`,
+        `Voici les détails de votre nouvel itinéraire et le coût associé à cette modification :`,
+        `Veuillez examiner la proposition de modification ci-dessous, incluant les nouveaux horaires et les frais applicables :`,
+        `Comme demandé, voici les détails de la modification de votre voyage et le tarif correspondant :`
+      ];
+      return variants[variantIndex % variants.length];
+    } else {
+      const variants = [
+        `Please review the proposed new itinerary and the cost to make this change:`,
+        `Here are the details for your updated itinerary along with the modification cost:`,
+        `Please find below the proposed changes to your journey and the associated fees:`,
+        `As requested, here is the modified itinerary and the applicable fare difference:`
+      ];
+      return variants[variantIndex % variants.length];
+    }
+  }
+
+  let productEn = 'travel';
+  let productFr = 'voyage';
+  if (hasFlights && hasTrains) {
+    productEn = 'flight and train';
+    productFr = 'vol et de train';
+  } else if (hasFlights) {
+    productEn = 'flight';
+    productFr = 'vol';
+  } else if (hasTrains) {
+    productEn = 'train';
+    productFr = 'train';
+  }
+
+  if (language === 'fr') {
+    const offerWord = isMultiple ? 'propositions' : 'proposition';
+    const optionWord = isMultiple ? 'options' : 'option';
+    const variants = [
+      `Veuillez trouver ci-dessous notre ${offerWord} de ${productFr} :`,
+      `Voici ${isMultiple ? 'les' : 'la'} ${optionWord} de ${productFr} que nous avons trouvée${isMultiple ? 's' : ''} pour vous :`,
+      `Nous avons le plaisir de vous soumettre ${isMultiple ? 'ces' : 'cette'} ${offerWord} de ${productFr} pour votre prochain voyage :`,
+      `Comme convenu, veuillez examiner ${isMultiple ? 'les' : 'la'} ${optionWord} de ${productFr} ci-dessous :`
+    ];
+    return variants[variantIndex % variants.length];
+  } else {
+    const offerWord = isMultiple ? 'offers' : 'offer';
+    const optionWord = isMultiple ? 'options' : 'option';
+    const variants = [
+      `Please review the following ${productEn} ${offerWord}:`,
+      `Here ${isMultiple ? 'are' : 'is'} the ${productEn} ${optionWord} we have put together for your trip:`,
+      `We are pleased to provide the following ${productEn} ${offerWord} for your review:`,
+      `As requested, please find below the ${productEn} ${optionWord} for your upcoming journey:`
+    ];
+    return variants[variantIndex % variants.length];
+  }
+};
+
+const getOutroSentence = (language: 'en' | 'fr', type: 'offer' | 'modification', totalOffers: number, variantIndex: number) => {
+  const isMultiple = totalOffers > 1;
+
+  if (type === 'modification') {
+    if (language === 'fr') {
+      const variants = [
+        `Merci de nous confirmer si vous souhaitez procéder à cette modification.`,
+        `N'hésitez pas à nous faire savoir si cette modification vous convient.`,
+        `Dans l'attente de votre confirmation pour valider ces changements.`,
+        `Veuillez nous indiquer si nous pouvons finaliser cette modification pour vous.`
+      ];
+      return variants[variantIndex % variants.length];
+    } else {
+      const variants = [
+        `Please confirm if you would like to proceed with this change.`,
+        `Let us know if this updated itinerary works for you.`,
+        `We look forward to your confirmation to finalize these changes.`,
+        `Please advise if we should go ahead and process this modification.`
+      ];
+      return variants[variantIndex % variants.length];
+    }
+  }
+
+  if (language === 'fr') {
+    const variants = isMultiple ? [
+      `Merci de nous indiquer quelle option vous convient le mieux, ou si vous souhaitez d'autres ajustements.`,
+      `Faites-nous savoir laquelle de ces propositions a votre préférence.`,
+      `Nous restons à votre disposition pour affiner ces options selon vos besoins.`,
+      `Dans l'attente de votre retour pour réserver l'option de votre choix.`
+    ] : [
+      `Merci de nous indiquer si cette proposition vous convient, ou si vous souhaitez d'autres ajustements.`,
+      `Faites-nous savoir si cette option répond à vos attentes.`,
+      `Nous restons à votre disposition pour affiner cette proposition selon vos besoins.`,
+      `Dans l'attente de votre retour pour procéder à la réservation.`
+    ];
+    return variants[variantIndex % variants.length];
+  } else {
+    const variants = isMultiple ? [
+      `Please let us know which of these options works best for you, or if you need any further adjustments.`,
+      `Kindly advise which offer you prefer so we can proceed with the booking.`,
+      `We remain at your disposal should you wish to explore other alternatives.`,
+      `Looking forward to hearing which option suits your travel plans.`
+    ] : [
+      `Please let us know if you would like to confirm this offer or if you need any further adjustments.`,
+      `Kindly advise if this option works for you so we can proceed with the booking.`,
+      `We remain at your disposal should you wish to explore other alternatives.`,
+      `Looking forward to your confirmation to secure this itinerary.`
+    ];
+    return variants[variantIndex % variants.length];
+  }
 };
 
 export function ItineraryView({ data }: { data: ParsedPNR }) {
@@ -40,6 +152,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
   const createDefaultOffer = (): OfferOption => ({
     id: Math.random().toString(36).substring(7),
     totalPrice: '',
+    cabin: '',
     baggage: '',
     changesOption: 'fee',
     changesFee: '',
@@ -189,31 +302,29 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
     }
   };
 
-  const generateEmailHtml = (type: 'itinerary' | 'offer' | 'modification' = 'itinerary') => {
+  const generateEmailHtml = (type: 'itinerary' | 'offer' | 'modification' = 'itinerary', variantIndex: number = 0) => {
     let html = `<div style="font-family: Arial, sans-serif; color: #000; max-width: 1000px; line-height: 1.5;">`;
     
+    const totalOffers = Object.values(itineraryOffers).reduce((acc, offers) => acc + offers.length, 0);
+    const hasFlights = allItineraries.some(it => it.flights && it.flights.length > 0);
+    const hasTrains = allItineraries.some(it => it.trains && it.trains.length > 0);
+
     if (type === 'offer' || type === 'modification') {
       if (language === 'fr') {
         html += `<p style="margin-bottom: 16px;">Bonjour ${customerName || ''},</p>`;
-        html += `<p style="margin-bottom: 16px;">Merci de nous avoir contactés.</p>`;
-        if (type === 'modification') {
-          html += `<p style="margin-bottom: 24px;">Veuillez trouver ci-dessous votre nouvel itinéraire proposé ainsi que le coût de la modification :</p>`;
-        } else {
-          html += `<p style="margin-bottom: 24px;">Veuillez trouver ci-dessous notre proposition de vol :</p>`;
-        }
+        html += `<p style="margin-bottom: 24px;">Merci de nous avoir contactés.</p>`;
+        html += `<p style="margin-bottom: 24px;">Référence de réservation : ${primaryItinerary.bookingReference || ''}</p>`;
+        html += `<p style="margin-bottom: 24px;">${getIntroSentence('fr', type, hasFlights, hasTrains, totalOffers, variantIndex)}</p>`;
         if (travellerName) {
-          html += `<p style="margin-bottom: 16px;"><strong>Passager(s) :</strong> ${travellerName}</p>`;
+          html += `<p style="margin-bottom: 24px;"><strong>Passager :</strong> ${travellerName}</p>`;
         }
       } else {
         html += `<p style="margin-bottom: 16px;">Dear ${customerName || '(name)'},</p>`;
-        html += `<p style="margin-bottom: 16px;">Thank you for reaching out.</p>`;
-        if (type === 'modification') {
-          html += `<p style="margin-bottom: 24px;">Please review the proposed new itinerary and the cost to make this change:</p>`;
-        } else {
-          html += `<p style="margin-bottom: 24px;">Please review the following flight offer:</p>`;
-        }
+        html += `<p style="margin-bottom: 24px;">Thank you for reaching out.</p>`;
+        html += `<p style="margin-bottom: 24px;">Booking Ref: ${primaryItinerary.bookingReference || ''}</p>`;
+        html += `<p style="margin-bottom: 24px;">${getIntroSentence('en', type, hasFlights, hasTrains, totalOffers, variantIndex)}</p>`;
         if (travellerName) {
-          html += `<p style="margin-bottom: 16px;"><strong>Traveller(s):</strong> ${travellerName}</p>`;
+          html += `<p style="margin-bottom: 24px;"><strong>Traveller:</strong> ${travellerName}</p>`;
         }
       }
     }
@@ -224,7 +335,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
 
     allItineraries.forEach((itinerary, itIdx) => {
       if (allItineraries.length > 1) {
-        html += `<h3 style="font-size: 15px; font-weight: bold; margin-bottom: 16px; color: #334155;">Itinerary ${itIdx + 1}</h3>`;
+        html += `<h3 style="font-size: 15px; font-weight: bold; margin-bottom: 24px; color: #334155;">Itinerary ${itIdx + 1}</h3>`;
       }
       
       const flights = itinerary.flights || [];
@@ -297,10 +408,10 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                 <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Train</th>
                 <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 20%;">Départ</th>
                 <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 20%;">Arrivée</th>
-                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Class</th>
+                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Classe</th>
                 <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Tarif</th>
                 <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Transfert</th>
-                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Duration</th>
+                <th style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Durée</th>
               </tr>
             </thead>
             <tbody>
@@ -322,7 +433,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
               </tr>
             </tbody>
           </table>
-          ${train.price ? `<div style="margin-top: 12px; text-align: right; font-size: 14px; font-weight: bold; color: #0f172a;">Price: ${train.price}</div>` : ''}
+          ${train.price ? `<div style="margin-top: 12px; text-align: right; font-size: 14px; font-weight: bold; color: #0f172a;">Prix : ${train.price}</div>` : ''}
         </div>
         `;
       });
@@ -342,6 +453,9 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
               html += `  <p style="margin-bottom: 16px;"><strong>${priceLabel}</strong> ${offer.totalPrice || 'À déterminer'}</p>`;
               html += `  <p style="margin-bottom: 8px;"><strong>Conditions tarifaires :</strong></p>`;
               html += `  <ul style="margin-top: 0; margin-bottom: 0; padding-left: 20px;">`;
+              if (offer.cabin) {
+                html += `    <li><strong>Cabine :</strong> ${offer.cabin}</li>`;
+              }
               html += `    <li><strong>Bagages :</strong> ${offer.baggage || 'Non spécifié'}</li>`;
               html += `    <li><strong>Modifications :</strong> ${getChangesText('fr', offer)}</li>`;
               html += `    <li><strong>Annulation :</strong> ${getRefundabilityText('fr', offer)}</li>`;
@@ -351,6 +465,9 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
               html += `  <p style="margin-bottom: 16px;"><strong>${priceLabel}</strong> ${offer.totalPrice || 'TBD'}</p>`;
               html += `  <p style="margin-bottom: 8px;"><strong>Fare conditions:</strong></p>`;
               html += `  <ul style="margin-top: 0; margin-bottom: 0; padding-left: 20px;">`;
+              if (offer.cabin) {
+                html += `    <li><strong>Cabin:</strong> ${offer.cabin}</li>`;
+              }
               html += `    <li><strong>Baggage:</strong> ${offer.baggage || 'Not specified'}</li>`;
               html += `    <li><strong>Changes:</strong> ${getChangesText('en', offer)}</li>`;
               html += `    <li><strong>Cancellation:</strong> ${getRefundabilityText('en', offer)}</li>`;
@@ -365,18 +482,10 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
 
     if (type === 'offer' || type === 'modification') {
       if (language === 'fr') {
-        if (type === 'modification') {
-          html += `  <p style="margin-bottom: 16px;">Veuillez nous confirmer si vous souhaitez procéder à cette modification.</p>`;
-        } else {
-          html += `  <p style="margin-bottom: 16px;">N'hésitez pas à nous indiquer si vous souhaitez confirmer l'une de ces offres ou si vous avez besoin d'autres ajustements.</p>`;
-        }
+        html += `  <p style="margin-bottom: 16px;">${getOutroSentence('fr', type, totalOffers, variantIndex)}</p>`;
         html += `  <p style="margin-bottom: 0;">Cordialement,</p>`;
       } else {
-        if (type === 'modification') {
-          html += `  <p style="margin-bottom: 16px;">Please confirm if you would like to proceed with this change.</p>`;
-        } else {
-          html += `  <p style="margin-bottom: 16px;">Please let us know if you would like to confirm one of these offers or if you need any further adjustments.</p>`;
-        }
+        html += `  <p style="margin-bottom: 16px;">${getOutroSentence('en', type, totalOffers, variantIndex)}</p>`;
         html += `  <p style="margin-bottom: 0;">Kind regards,</p>`;
       }
     }
@@ -385,31 +494,29 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
     return html;
   };
 
-  const generatePlainText = (type: 'itinerary' | 'offer' | 'modification' = 'itinerary') => {
+  const generatePlainText = (type: 'itinerary' | 'offer' | 'modification' = 'itinerary', variantIndex: number = 0) => {
     let text = '';
     
+    const totalOffers = Object.values(itineraryOffers).reduce((acc, offers) => acc + offers.length, 0);
+    const hasFlights = allItineraries.some(it => it.flights && it.flights.length > 0);
+    const hasTrains = allItineraries.some(it => it.trains && it.trains.length > 0);
+
     if (type === 'offer' || type === 'modification') {
       if (language === 'fr') {
         text += `Bonjour ${customerName || ''},\n\n`;
         text += `Merci de nous avoir contactés.\n\n`;
-        if (type === 'modification') {
-          text += `Veuillez trouver ci-dessous votre nouvel itinéraire proposé ainsi que le coût de la modification :\n\n`;
-        } else {
-          text += `Veuillez trouver ci-dessous notre proposition de vol :\n\n`;
-        }
+        text += `Référence de réservation : ${primaryItinerary.bookingReference || ''}\n\n`;
+        text += `${getIntroSentence('fr', type, hasFlights, hasTrains, totalOffers, variantIndex)}\n\n`;
         if (travellerName) {
-          text += `Passager(s) : ${travellerName}\n\n`;
+          text += `Passager : ${travellerName}\n\n`;
         }
       } else {
         text += `Dear ${customerName || '(name)'},\n\n`;
         text += `Thank you for reaching out.\n\n`;
-        if (type === 'modification') {
-          text += `Please review the proposed new itinerary and the cost to make this change:\n\n`;
-        } else {
-          text += `Please review the following flight offer:\n\n`;
-        }
+        text += `Booking Ref: ${primaryItinerary.bookingReference || ''}\n\n`;
+        text += `${getIntroSentence('en', type, hasFlights, hasTrains, totalOffers, variantIndex)}\n\n`;
         if (travellerName) {
-          text += `Traveller(s): ${travellerName}\n\n`;
+          text += `Traveller: ${travellerName}\n\n`;
         }
       }
     } else {
@@ -442,9 +549,9 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
         const arr = train.arrivalStation;
 
         text += `${prefix}${dep} -> ${arr}\n`;
-        text += `Date\tTrain\tDépart\tArrivée\tClass\tTarif\tTransfert\tDuration\n`;
+        text += `Date\tTrain\tDépart\tArrivée\tClasse\tTarif\tTransfert\tDurée\n`;
         text += `${train.date || '-'}\t${train.trainNumber || '-'}\t${train.departureStation} ${train.departureTime || '-'}\t${train.arrivalStation} ${train.arrivalTime || '-'}\t${train.cabinClass || '-'}\t${train.tarif || '-'}\t${train.transfer || 'Direct'}\t${train.duration || '-'}\n`;
-        if (train.price) text += `Price: ${train.price}\n`;
+        if (train.price) text += `Prix : ${train.price}\n`;
         text += `\n`;
       });
 
@@ -459,6 +566,9 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
             const priceLabel = type === 'modification' ? 'Coût de la modification :' : 'Prix :';
             text += `${priceLabel} ${offer.totalPrice || 'À déterminer'}\n\n`;
             text += `Conditions tarifaires :\n`;
+            if (offer.cabin) {
+              text += `- Cabine : ${offer.cabin}\n`;
+            }
             text += `- Bagages : ${offer.baggage || 'Non spécifié'}\n`;
             text += `- Modifications : ${getChangesText('fr', offer)}\n`;
             text += `- Annulation : ${getRefundabilityText('fr', offer)}\n\n`;
@@ -466,6 +576,9 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
             const priceLabel = type === 'modification' ? 'Modification Cost:' : 'Price:';
             text += `${priceLabel} ${offer.totalPrice || 'TBD'}\n\n`;
             text += `Fare conditions:\n`;
+            if (offer.cabin) {
+              text += `- Cabin: ${offer.cabin}\n`;
+            }
             text += `- Baggage: ${offer.baggage || 'Not specified'}\n`;
             text += `- Changes: ${getChangesText('en', offer)}\n`;
             text += `- Cancellation: ${getRefundabilityText('en', offer)}\n\n`;
@@ -476,18 +589,10 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
 
     if (type === 'offer' || type === 'modification') {
       if (language === 'fr') {
-        if (type === 'modification') {
-          text += `Veuillez nous confirmer si vous souhaitez procéder à cette modification.\n\n`;
-        } else {
-          text += `N'hésitez pas à nous indiquer si vous souhaitez confirmer l'une de ces offres ou si vous avez besoin d'autres ajustements.\n\n`;
-        }
+        text += `${getOutroSentence('fr', type, totalOffers, variantIndex)}\n\n`;
         text += `Cordialement,`;
       } else {
-        if (type === 'modification') {
-          text += `Please confirm if you would like to proceed with this change.\n\n`;
-        } else {
-          text += `Please let us know if you would like to confirm one of these offers or if you need any further adjustments.\n\n`;
-        }
+        text += `${getOutroSentence('en', type, totalOffers, variantIndex)}\n\n`;
         text += `Kind regards,`;
       }
     }
@@ -497,8 +602,9 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
 
   const handleCopy = async (type: 'itinerary' | 'offer' | 'modification' = 'itinerary') => {
     try {
-      const html = generateEmailHtml(type);
-      const text = generatePlainText(type);
+      const variantIndex = Math.floor(Math.random() * 4);
+      const html = generateEmailHtml(type, variantIndex);
+      const text = generatePlainText(type, variantIndex);
       
       const clipboardItem = new ClipboardItem({
         'text/html': new Blob([html], { type: 'text/html' }),
@@ -545,8 +651,8 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
             <h2 className="text-lg font-bold text-slate-900">
               {isAdditional ? `Itinerary ${index + 1}: ${routeTitle}` : `Itinerary: ${routeTitle}`}
             </h2>
-            {itinerary.passengers.length > 0 && (
-              <p className="text-sm text-slate-600 mt-1">Passengers: {itinerary.passengers.join(', ')}</p>
+            {(itinerary.passengers || []).length > 0 && (
+              <p className="text-sm text-slate-600 mt-1">Passengers: {(itinerary.passengers || []).join(', ')}</p>
             )}
             {isAdditional && itinerary.bookingReference !== 'UNKNOWN' && (
               <p className="text-sm text-slate-600 mt-1">Booking Ref: <span className="font-mono text-slate-800">{itinerary.bookingReference}</span></p>
@@ -631,10 +737,10 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                   <th className="py-2 px-3 font-medium w-[10%]">Train</th>
                   <th className="py-2 px-3 font-medium w-[20%]">Départ</th>
                   <th className="py-2 px-3 font-medium w-[20%]">Arrivée</th>
-                  <th className="py-2 px-3 font-medium w-[10%]">Class</th>
+                  <th className="py-2 px-3 font-medium w-[10%]">Classe</th>
                   <th className="py-2 px-3 font-medium w-[10%]">Tarif</th>
                   <th className="py-2 px-3 font-medium w-[10%]">Transfert</th>
-                  <th className="py-2 px-3 font-medium w-[10%]">Duration</th>
+                  <th className="py-2 px-3 font-medium w-[10%]">Durée</th>
                 </tr>
               </thead>
               <tbody className="text-sm text-slate-900">
@@ -660,8 +766,8 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                       <option value="Flexible">Flexible</option>
                       <option value="Semi-Flexible">Semi-Flexible</option>
                       <option value="Non-Flexible">Non-Flexible</option>
-                      <option value="Tarif FLEX PREMIÈRE">Tarif FLEX PREMIÈRE</option>
-                      <option value="Tarif STANDARD SECONDE">Tarif STANDARD SECONDE</option>
+                      <option value="FLEX PREMIÈRE">FLEX PREMIÈRE</option>
+                      <option value="STANDARD SECONDE">STANDARD SECONDE</option>
                     </select>
                   </td>
                   <td className="py-4 px-3 align-top text-slate-600">{train.transfer || 'Direct'}</td>
@@ -672,7 +778,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
             {train.price && (
               <div className="mt-4 flex justify-end">
                 <span className="inline-block bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-sm font-bold text-slate-800">
-                  Price: {train.price}
+                  Prix : {train.price}
                 </span>
               </div>
             )}
@@ -726,7 +832,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                     </button>
                   )}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className={`grid grid-cols-1 md:grid-cols-2 ${flights.length > 0 ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-4`}>
                   <div>
                     <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Total Price / Mod Cost</label>
                     <input 
@@ -737,6 +843,28 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                       placeholder="e.g. € 1,250.00" 
                     />
                   </div>
+                  {flights.length > 0 && (
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Cabin</label>
+                      <select 
+                        value={offer.cabin} 
+                        onChange={e => updateOffer(index, offer.id, 'cabin', e.target.value)}
+                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00b87c] focus:border-transparent bg-white"
+                      >
+                        <option value="">Select...</option>
+                        <option value="Business Full Flex">Business Full Flex</option>
+                        <option value="Business Flex">Business Flex</option>
+                        <option value="Business Semi Flex">Business Semi Flex</option>
+                        <option value="Business Standard">Business Standard</option>
+                        <option value="Premium Economy Full Flex">Premium Economy Full Flex</option>
+                        <option value="Premium Economy Semi Flex">Premium Economy Semi Flex</option>
+                        <option value="Premium Economy">Premium Economy</option>
+                        <option value="Economy Full Flex">Economy Full Flex</option>
+                        <option value="Economy Semi Flex">Economy Semi Flex</option>
+                        <option value="Economy">Economy</option>
+                      </select>
+                    </div>
+                  )}
                   <div>
                     <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Baggage</label>
                     <input 
@@ -875,7 +1003,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
         <div className="flex items-center gap-4 text-sm px-2">
           <div className="flex items-center gap-2">
             <FileText className="w-4 h-4" />
-            <span>{data.flights.length > 0 ? `${data.flights[0].departureDate} - ${data.flights[0].airline}` : 'Flight Itinerary'}</span>
+            <span>{(data.flights || []).length > 0 ? `${data.flights![0].departureDate} - ${data.flights![0].airline}` : 'Flight Itinerary'}</span>
           </div>
           <div className="flex items-center gap-2">
              <span className="text-gray-400">Booking Ref:</span>
