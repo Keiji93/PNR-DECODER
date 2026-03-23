@@ -194,6 +194,18 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
     });
   };
 
+  const handleBookingRefChange = (index: number, val: string) => {
+    if (index === 0) {
+      setPrimaryItinerary(prev => ({ ...prev, bookingReference: val }));
+    } else {
+      setAdditionalItineraries(prev => {
+        const newItin = [...prev];
+        newItin[index - 1] = { ...newItin[index - 1], bookingReference: val };
+        return newItin;
+      });
+    }
+  };
+
   const handleTrainTarifChange = (itineraryIndex: number, trainIndex: number, newTarif: string) => {
     if (itineraryIndex === 0) {
       setPrimaryItinerary(prev => {
@@ -313,7 +325,10 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
       if (language === 'fr') {
         html += `<p style="margin-bottom: 16px;">Bonjour ${customerName || ''},</p>`;
         html += `<p style="margin-bottom: 24px;">Merci de nous avoir contactés.</p>`;
-        html += `<p style="margin-bottom: 24px;">Référence de réservation : ${primaryItinerary.bookingReference || ''}</p>`;
+        const refStr = primaryItinerary.bookingReference && primaryItinerary.bookingReference !== 'UNKNOWN' ? primaryItinerary.bookingReference : '';
+        if (allItineraries.length === 1 && refStr) {
+          html += `<p style="margin-bottom: 24px;">Référence de réservation : ${refStr}</p>`;
+        }
         html += `<p style="margin-bottom: 24px;">${getIntroSentence('fr', type, hasFlights, hasTrains, totalOffers, variantIndex)}</p>`;
         if (travellerName) {
           html += `<p style="margin-bottom: 24px;"><strong>Passager :</strong> ${travellerName}</p>`;
@@ -321,7 +336,10 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
       } else {
         html += `<p style="margin-bottom: 16px;">Dear ${customerName || '(name)'},</p>`;
         html += `<p style="margin-bottom: 24px;">Thank you for reaching out.</p>`;
-        html += `<p style="margin-bottom: 24px;">Booking Ref: ${primaryItinerary.bookingReference || ''}</p>`;
+        const refStr = primaryItinerary.bookingReference && primaryItinerary.bookingReference !== 'UNKNOWN' ? primaryItinerary.bookingReference : '';
+        if (allItineraries.length === 1 && refStr) {
+          html += `<p style="margin-bottom: 24px;">Booking Ref: ${refStr}</p>`;
+        }
         html += `<p style="margin-bottom: 24px;">${getIntroSentence('en', type, hasFlights, hasTrains, totalOffers, variantIndex)}</p>`;
         if (travellerName) {
           html += `<p style="margin-bottom: 24px;"><strong>Traveller:</strong> ${travellerName}</p>`;
@@ -334,8 +352,13 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
     }
 
     allItineraries.forEach((itinerary, itIdx) => {
+      const hasBookingRef = itinerary.bookingReference && itinerary.bookingReference.trim() !== '' && itinerary.bookingReference !== 'UNKNOWN';
       if (allItineraries.length > 1) {
-        html += `<h3 style="font-size: 15px; font-weight: bold; margin-bottom: 24px; color: #334155;">Itinerary ${itIdx + 1}</h3>`;
+        html += `<h3 style="font-size: 15px; font-weight: bold; margin-bottom: ${hasBookingRef ? '8px' : '24px'}; color: #334155;">Itinerary ${itIdx + 1}</h3>`;
+        if (hasBookingRef) {
+          const refLabel = language === 'fr' ? 'Réf de dossier :' : 'Booking Ref:';
+          html += `<p style="margin-bottom: 24px; font-size: 14px; color: #475569;"><strong>${refLabel}</strong> <span style="font-family: monospace;">${itinerary.bookingReference}</span></p>`;
+        }
       }
       
       const flights = itinerary.flights || [];
@@ -505,7 +528,10 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
       if (language === 'fr') {
         text += `Bonjour ${customerName || ''},\n\n`;
         text += `Merci de nous avoir contactés.\n\n`;
-        text += `Référence de réservation : ${primaryItinerary.bookingReference || ''}\n\n`;
+        const refStr = primaryItinerary.bookingReference && primaryItinerary.bookingReference !== 'UNKNOWN' ? primaryItinerary.bookingReference : '';
+        if (allItineraries.length === 1 && refStr) {
+          text += `Référence de réservation : ${refStr}\n\n`;
+        }
         text += `${getIntroSentence('fr', type, hasFlights, hasTrains, totalOffers, variantIndex)}\n\n`;
         if (travellerName) {
           text += `Passager : ${travellerName}\n\n`;
@@ -513,7 +539,10 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
       } else {
         text += `Dear ${customerName || '(name)'},\n\n`;
         text += `Thank you for reaching out.\n\n`;
-        text += `Booking Ref: ${primaryItinerary.bookingReference || ''}\n\n`;
+        const refStr = primaryItinerary.bookingReference && primaryItinerary.bookingReference !== 'UNKNOWN' ? primaryItinerary.bookingReference : '';
+        if (allItineraries.length === 1 && refStr) {
+          text += `Booking Ref: ${refStr}\n\n`;
+        }
         text += `${getIntroSentence('en', type, hasFlights, hasTrains, totalOffers, variantIndex)}\n\n`;
         if (travellerName) {
           text += `Traveller: ${travellerName}\n\n`;
@@ -524,8 +553,14 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
     }
 
     allItineraries.forEach((itinerary, itIdx) => {
+      const hasBookingRef = itinerary.bookingReference && itinerary.bookingReference.trim() !== '' && itinerary.bookingReference !== 'UNKNOWN';
       if (allItineraries.length > 1) {
-        text += `--- Itinerary ${itIdx + 1} ---\n\n`;
+        text += `--- Itinerary ${itIdx + 1} ---\n`;
+        if (hasBookingRef) {
+          const refLabel = language === 'fr' ? 'Réf de dossier :' : 'Booking Ref:';
+          text += `${refLabel} ${itinerary.bookingReference}\n`;
+        }
+        text += `\n`;
       }
       
       const flights = itinerary.flights || [];
@@ -654,9 +689,16 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
             {(itinerary.passengers || []).length > 0 && (
               <p className="text-sm text-slate-600 mt-1">Passengers: {(itinerary.passengers || []).join(', ')}</p>
             )}
-            {isAdditional && itinerary.bookingReference !== 'UNKNOWN' && (
-              <p className="text-sm text-slate-600 mt-1">Booking Ref: <span className="font-mono text-slate-800">{itinerary.bookingReference}</span></p>
-            )}
+            <div className="mt-3 flex items-center gap-2">
+              <label className="text-sm font-semibold text-slate-700">Booking Ref:</label>
+              <input 
+                type="text" 
+                value={(!itinerary.bookingReference || itinerary.bookingReference === 'UNKNOWN') ? '' : itinerary.bookingReference} 
+                onChange={(e) => handleBookingRefChange(index, e.target.value)}
+                placeholder="Optional PNR" 
+                className="w-32 border border-slate-300 rounded px-2 py-1 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
           </div>
           {isAdditional && (
             <button 
