@@ -327,7 +327,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
         html += `<p style="margin-bottom: 24px;">Merci de nous avoir contactés.</p>`;
         const refStr = primaryItinerary.bookingReference && primaryItinerary.bookingReference !== 'UNKNOWN' ? primaryItinerary.bookingReference : '';
         if (allItineraries.length === 1 && refStr) {
-          html += `<p style="margin-bottom: 24px;">Référence de réservation : ${refStr}</p>`;
+          html += `<p style="margin-bottom: 24px;">Référence de réservation : <span style="font-weight: bold; color: #000; font-size: 16px;">${refStr}</span></p>`;
         }
         html += `<p style="margin-bottom: 24px;">${getIntroSentence('fr', type, hasFlights, hasTrains, totalOffers, variantIndex)}</p>`;
         if (travellerName) {
@@ -338,7 +338,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
         html += `<p style="margin-bottom: 24px;">Thank you for reaching out.</p>`;
         const refStr = primaryItinerary.bookingReference && primaryItinerary.bookingReference !== 'UNKNOWN' ? primaryItinerary.bookingReference : '';
         if (allItineraries.length === 1 && refStr) {
-          html += `<p style="margin-bottom: 24px;">Booking Ref: ${refStr}</p>`;
+          html += `<p style="margin-bottom: 24px;">Booking Ref: <span style="font-weight: bold; color: #000; font-size: 16px;">${refStr}</span></p>`;
         }
         html += `<p style="margin-bottom: 24px;">${getIntroSentence('en', type, hasFlights, hasTrains, totalOffers, variantIndex)}</p>`;
         if (travellerName) {
@@ -357,7 +357,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
         html += `<h3 style="font-size: 15px; font-weight: bold; margin-bottom: ${hasBookingRef ? '8px' : '24px'}; color: #334155;">Itinerary ${itIdx + 1}</h3>`;
         if (hasBookingRef) {
           const refLabel = language === 'fr' ? 'Réf de dossier :' : 'Booking Ref:';
-          html += `<p style="margin-bottom: 24px; font-size: 14px; color: #475569;"><strong>${refLabel}</strong> <span style="font-family: monospace;">${itinerary.bookingReference}</span></p>`;
+          html += `<p style="margin-bottom: 24px; font-size: 14px; color: #475569;"><strong>${refLabel}</strong> <span style="font-family: monospace; font-weight: bold; color: #000; font-size: 16px;">${itinerary.bookingReference}</span></p>`;
         }
       }
       
