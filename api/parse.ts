@@ -26,24 +26,24 @@ You MUST return a valid JSON object matching this exact structure (do not includ
   "passengers": ["List of passenger names found in the PNR. Format as 'First Last' if possible."],
   "flights": [
     {
-      "airline": "Airline name.",
-      "flightNumber": "Flight number (e.g., MS758).",
+      "airline": "The FULL name of the airline (e.g., 'Uzbekistan Airways', 'British Airways'). Do NOT output just the 2-letter carrier code (e.g., do not output 'HY'). Translate it. If unknown, leave it blank rather than giving a 2-letter code.",
+      "flightNumber": "The 2-character carrier code AND the flight number combined (e.g., 'HY 045' or 'MS 758'). DO NOT forget the carrier code.",
       "departureAirportCode": "3-letter IATA code for departure airport.",
-      "departureAirportName": "Full name of departure airport.",
+      "departureAirportName": "The FULL official name of the departure airport (e.g., 'Tashkent Intl Airport'). Do NOT output the 3-letter code here. If unknown, output City + Airport.",
       "departureCity": "City name for departure.",
-      "departureDate": "Departure date (e.g., 'Sun 4 Oct').",
-      "departureTime": "Departure time (e.g., '15:40').",
+      "departureDate": "Departure date (e.g., 'Sun 4 Oct' or '02MAY').",
+      "departureTime": "Departure time with a colon (e.g., '18:00'). NEVER omit the colon. If it is '1800', rewrite it as '18:00'.",
       "arrivalAirportCode": "3-letter IATA code for arrival airport.",
-      "arrivalAirportName": "Full name of arrival airport.",
+      "arrivalAirportName": "The FULL official name of the arrival airport. Do NOT output the 3-letter code here. If unknown, output City + Airport.",
       "arrivalCity": "City name for arrival.",
-      "arrivalDate": "Arrival date (e.g., 'Sun 4 Oct').",
-      "arrivalTime": "Arrival time (e.g., '21:10').",
+      "arrivalDate": "Arrival date.",
+      "arrivalTime": "Arrival time with a colon (e.g., '18:55'). NEVER omit the colon. If it is '1855', rewrite it as '18:55'.",
       "cabinClass": "Cabin class (e.g., Economy, Business, First).",
-      "duration": "Flight duration (e.g., '4h 30m').",
+      "duration": "Flight duration (e.g., '4h 30m'). If you have departure and arrival times, calculate it if not present.",
       "layover": "Layover time if applicable, otherwise '-'.",
-      "aircraft": "Aircraft type (e.g., 'Airbus A321-100/200 Ceo').",
+      "aircraft": "Aircraft type (e.g., 'Boeing 737' or 'A320'). If not present, try to infer or use '-'.",
       "status": "Flight status (e.g., Confirmed, HK).",
-      "price": "The individual price for this specific flight segment (e.g., '184.00 EUR'). Look for it near the end of the segment details."
+      "price": "The individual price for this specific flight segment (e.g., '184.00 EUR'). Look for it near the end."
     }
   ],
   "trains": [
