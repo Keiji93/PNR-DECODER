@@ -46,6 +46,7 @@ You MUST return a valid JSON object matching this exact structure (do not includ
       "cabinClass": "Cabin class (e.g., Economy, Business, First).",
       "duration": "The actual flight duration (e.g., '8h 50m'). Extract this from the PNR if available. If NOT explicitly written, you MUST calculate it accurately using this specific formula adjusting for timezones: 1. Convert Departure to UTC (Departure Time + Offset). 2. Convert Arrival to UTC (Arrival Time + Offset). 3. Calculate Difference: Duration = (Arrival Time_UTC + 24 if next day) - Departure Time_UTC. Example: JFK (UTC-4) at 19:30 to CDG (UTC+1) at 07:20 -> Dep(23:30 UTC), Arr(06:20 UTC next day -> 30:20), Duration = 30:20 - 23:30 = 6h 50m. Always use this exact UTC math!",
       "layover": "Layover time if applicable. If not explicitly written, calculate it by checking the time between the very previous flight's arrival and this flight's departure, again accounting for time zones if they differ. Otherwise '-'.",
+      "stops": "The number of stops for this flight segment (e.g., '0' for direct, '1' for one stop). Look for a standalone digit in the PNR string near the end, or specifically indicate it if clearly written. If unknown or not found, return '0'.",
       "aircraft": "Aircraft type (e.g., 'Boeing 737' or 'A320'). If not present, try to infer or use '-'.",
       "status": "Flight status (e.g., Confirmed, HK).",
       "price": "The individual price for this specific flight segment (e.g., '184.00 EUR'). Look for it near the end."

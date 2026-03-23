@@ -17,6 +17,7 @@ export interface FlightSegment {
   aircraft?: string;
   status?: string;
   price?: string;
+  stops?: string;
 }
 
 export interface TrainSegment {
