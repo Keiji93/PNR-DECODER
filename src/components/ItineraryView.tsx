@@ -315,7 +315,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
   };
 
   const generateEmailHtml = (type: 'itinerary' | 'offer' | 'modification' = 'itinerary', variantIndex: number = 0) => {
-    let html = `<div style="font-family: Arial, sans-serif; color: #000; max-width: 1000px; line-height: 1.5;">`;
+    let html = `<div style="font-family: Arial, sans-serif; font-weight: normal; color: #000; max-width: 1000px; line-height: 1.5;">`;
     
     const totalOffers = Object.values(itineraryOffers).reduce((acc, offers) => acc + offers.length, 0);
     const hasFlights = allItineraries.some(it => it.flights && it.flights.length > 0);
@@ -323,26 +323,26 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
 
     if (type === 'offer' || type === 'modification') {
       if (language === 'fr') {
-        html += `<p style="margin-bottom: 16px;">Bonjour ${customerName || ''},</p>`;
-        html += `<p style="margin-bottom: 24px;">Merci de nous avoir contactés.</p>`;
+        html += `<p style="margin-bottom: 16px; font-weight: normal;">Bonjour ${customerName || ''},</p>`;
+        html += `<p style="margin-bottom: 24px; font-weight: normal;">Merci de nous avoir contactés.</p>`;
         const refStr = primaryItinerary.bookingReference && primaryItinerary.bookingReference !== 'UNKNOWN' ? primaryItinerary.bookingReference : '';
         if (allItineraries.length === 1 && refStr) {
-          html += `<p style="margin-bottom: 24px;">Référence de réservation : <strong style="color: #000; font-size: 16px;">${refStr}</strong></p>`;
+          html += `<p style="margin-bottom: 24px; font-weight: normal;">Référence de réservation : <strong style="color: #000; font-size: 16px;">${refStr}</strong></p>`;
         }
-        html += `<p style="margin-bottom: 24px;">${getIntroSentence('fr', type, hasFlights, hasTrains, totalOffers, variantIndex)}</p>`;
+        html += `<p style="margin-bottom: 24px; font-weight: normal;">${getIntroSentence('fr', type, hasFlights, hasTrains, totalOffers, variantIndex)}</p>`;
         if (travellerName) {
-          html += `<p style="margin-bottom: 24px;"><strong>Passager :</strong> ${travellerName}</p>`;
+          html += `<p style="margin-bottom: 24px; font-weight: normal;"><strong>Passager :</strong> ${travellerName}</p>`;
         }
       } else {
-        html += `<p style="margin-bottom: 16px;">Dear ${customerName || '(name)'},</p>`;
-        html += `<p style="margin-bottom: 24px;">Thank you for reaching out.</p>`;
+        html += `<p style="margin-bottom: 16px; font-weight: normal;">Dear ${customerName || '(name)'},</p>`;
+        html += `<p style="margin-bottom: 24px; font-weight: normal;">Thank you for reaching out.</p>`;
         const refStr = primaryItinerary.bookingReference && primaryItinerary.bookingReference !== 'UNKNOWN' ? primaryItinerary.bookingReference : '';
         if (allItineraries.length === 1 && refStr) {
-          html += `<p style="margin-bottom: 24px;">Booking Ref: <strong style="color: #000; font-size: 16px;">${refStr}</strong></p>`;
+          html += `<p style="margin-bottom: 24px; font-weight: normal;">Booking Ref: <strong style="color: #000; font-size: 16px;">${refStr}</strong></p>`;
         }
-        html += `<p style="margin-bottom: 24px;">${getIntroSentence('en', type, hasFlights, hasTrains, totalOffers, variantIndex)}</p>`;
+        html += `<p style="margin-bottom: 24px; font-weight: normal;">${getIntroSentence('en', type, hasFlights, hasTrains, totalOffers, variantIndex)}</p>`;
         if (travellerName) {
-          html += `<p style="margin-bottom: 24px;"><strong>Traveller:</strong> ${travellerName}</p>`;
+          html += `<p style="margin-bottom: 24px; font-weight: normal;"><strong>Traveller:</strong> ${travellerName}</p>`;
         }
       }
     }
@@ -357,7 +357,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
         html += `<h3 style="font-size: 15px; font-weight: bold; margin-bottom: ${hasBookingRef ? '8px' : '24px'}; color: #334155;">Itinerary ${itIdx + 1}</h3>`;
         if (hasBookingRef) {
           const refLabel = language === 'fr' ? 'Réf de dossier :' : 'Booking Ref:';
-          html += `<p style="margin-bottom: 24px; font-size: 14px; color: #475569;"><strong>${refLabel}</strong> <strong style="font-family: monospace; color: #000; font-size: 16px;">${itinerary.bookingReference}</strong></p>`;
+          html += `<p style="margin-bottom: 24px; font-size: 14px; color: #475569; font-weight: normal;"><strong>${refLabel}</strong> <strong style="font-family: monospace; color: #000; font-size: 16px;">${itinerary.bookingReference}</strong></p>`;
         }
       }
       
@@ -505,11 +505,11 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
 
     if (type === 'offer' || type === 'modification') {
       if (language === 'fr') {
-        html += `  <p style="margin-bottom: 16px;">${getOutroSentence('fr', type, totalOffers, variantIndex)}</p>`;
-        html += `  <p style="margin-bottom: 0;">Cordialement,</p>`;
+        html += `  <p style="margin-bottom: 16px; font-weight: normal;">${getOutroSentence('fr', type, totalOffers, variantIndex)}</p>`;
+        html += `  <p style="margin-bottom: 0; font-weight: normal;">Cordialement,</p>`;
       } else {
-        html += `  <p style="margin-bottom: 16px;">${getOutroSentence('en', type, totalOffers, variantIndex)}</p>`;
-        html += `  <p style="margin-bottom: 0;">Kind regards,</p>`;
+        html += `  <p style="margin-bottom: 16px; font-weight: normal;">${getOutroSentence('en', type, totalOffers, variantIndex)}</p>`;
+        html += `  <p style="margin-bottom: 0; font-weight: normal;">Kind regards,</p>`;
       }
     }
 
