@@ -39,8 +39,8 @@ You MUST return a valid JSON object matching this exact structure (do not includ
       "arrivalDate": "Arrival date.",
       "arrivalTime": "Arrival time with a colon (e.g., '18:55'). NEVER omit the colon. If it is '1855', rewrite it as '18:55'.",
       "cabinClass": "Cabin class (e.g., Economy, Business, First).",
-      "duration": "EXTREMELY IMPORTANT: The true flight duration (e.g., '8h 50m'). Extract this directly from the PNR text if it exists. NEVER calculate this manually from the departure and arrival times, because they are in different time zones and your calculation will be completely wrong for long-haul flights. If the duration is not explicitly stated in the text, you MUST return '-'.",
-      "layover": "Layover time if applicable. Do NOT try to calculate this manually, extract it only if written. Otherwise '-'.",
+      "duration": "The actual flight duration (e.g., '8h 50m'). Extract this from the PNR if available. If it is NOT explicitly written, you MUST calculate it using the departure and arrival times. CRITICAL: When calculating, you MUST correctly account for the time zone difference between the departure and arrival airports using your world knowledge. For example, a flight from Paris (UTC+1) at 14:30 arriving in Boston (UTC-5) at 17:20 is roughly 8h 50m, NOT 2h 50m. Always adjust for timezones!",
+      "layover": "Layover time if applicable. If not explicitly written, calculate it by checking the time between the very previous flight's arrival and this flight's departure, again accounting for time zones if they differ. Otherwise '-'.",
       "aircraft": "Aircraft type (e.g., 'Boeing 737' or 'A320'). If not present, try to infer or use '-'.",
       "status": "Flight status (e.g., Confirmed, HK).",
       "price": "The individual price for this specific flight segment (e.g., '184.00 EUR'). Look for it near the end."
