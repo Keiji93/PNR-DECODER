@@ -1,6 +1,9 @@
 import Groq from 'groq-sdk';
 import moment from 'moment-timezone';
-import airportTimezones from 'airport-timezone';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const airportTimezones = require('airport-timezone');
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
