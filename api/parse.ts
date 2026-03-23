@@ -1,4 +1,6 @@
 import Groq from 'groq-sdk';
+import moment from 'moment-timezone';
+import airportTimezones from 'airport-timezone';
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
@@ -104,6 +106,47 @@ If some information is missing, do your best to infer or leave it blank. Omit th
     jsonStr = jsonStr.replace(/^```json\s*/, '').replace(/\s*```$/, '').trim();
     
     const parsedData = JSON.parse(jsonStr);
+
+    if (parsedData.flights && Array.isArray(parsedData.flights)) {
+      const currentYear = new Date().getFullYear();
+      
+      for (const f of parsedData.flights) {
+        if (!f.duration || f.duration === '-' || f.duration.includes('not calculate') || f.duration.length > 10 || f.duration.includes('UNKNOWN')) {
+          if (f.departureDate && f.departureTime && f.arrivalDate && f.arrivalTime && f.departureAirportCode && f.arrivalAirportCode) {
+            const depTzMatch = airportTimezones.find((a: any) => a.code === f.departureAirportCode);
+            const arrTzMatch = airportTimezones.find((a: any) => a.code === f.arrivalAirportCode);
+            
+            if (depTzMatch && arrTzMatch) {
+              const depStr = `${currentYear}-${f.departureDate.replace(/ /g, '')} ${f.departureTime}`;
+              const arrStr = `${currentYear}-${f.arrivalDate.replace(/ /g, '')} ${f.arrivalTime}`;
+              
+              const formats = ['YYYY-DDMMM HH:mm', 'YYYY-DMMM HH:mm', 'YYYY-DDMM HH:mm'];
+              const mDep = moment.tz(depStr, formats, depTzMatch.timezone);
+              const mArr = moment.tz(arrStr, formats, arrTzMatch.timezone);
+              
+              if (mDep.isValid() && mArr.isValid()) {
+                let diffMins = mArr.diff(mDep, 'minutes');
+                
+                if (diffMins < 0 && diffMins > -24 * 60) {
+                  mArr.add(1, 'days');
+                  diffMins = mArr.diff(mDep, 'minutes');
+                } else if (diffMins < -24 * 60) {
+                  mArr.add(1, 'years');
+                  diffMins = mArr.diff(mDep, 'minutes');
+                }
+                
+                if (diffMins >= 0 && diffMins < 48 * 60) {
+                  const h = Math.floor(diffMins / 60);
+                  const m = diffMins % 60;
+                  f.duration = h > 0 ? `${h}h ${m}m` : `${m}m`;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
     return res.status(200).json(parsedData);
   } catch (error: any) {
     console.error('API Error:', error);
