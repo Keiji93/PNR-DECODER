@@ -1,5 +1,5 @@
 import { Copy, Check, FileText, Plus, Trash2, Loader2, Train } from 'lucide-react';
-import { ParsedPNR, TrainSegment } from '../types';
+import { ParsedPNR, TrainSegment, FlightSegment } from '../types';
 import { motion } from 'motion/react';
 import { useState, useRef, useEffect } from 'react';
 import { parsePNR } from '../services/geminiService';
@@ -288,6 +288,82 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
     return `Segment ${idx + 1}: `;
   };
 
+  type FlightBound = {
+    type: string;
+    flights: FlightSegment[];
+    departureCity: string;
+    arrivalCity: string;
+    totalDuration: string;
+  };
+
+  const groupFlightsIntoBounds = (flights: FlightSegment[]): FlightBound[] => {
+    if (!flights || flights.length === 0) return [];
+    const bounds: FlightBound[] = [];
+    let currentBound: FlightSegment[] = [flights[0]];
+
+    for (let i = 1; i < flights.length; i++) {
+      const prev = flights[i - 1];
+      const curr = flights[i];
+      const first = flights[0];
+
+      const departsFromPrevArrival = 
+        (curr.departureAirportCode && curr.departureAirportCode === prev.arrivalAirportCode) ||
+        (curr.departureCity && curr.departureCity === prev.arrivalCity);
+        
+      const arrivesAtOriginalDeparture = 
+        (curr.arrivalAirportCode && curr.arrivalAirportCode === first.departureAirportCode) ||
+        (curr.arrivalCity && curr.arrivalCity === first.departureCity);
+
+      if (departsFromPrevArrival && !arrivesAtOriginalDeparture) {
+        currentBound.push(curr);
+      } else {
+        bounds.push({ type: '', flights: currentBound, departureCity: '', arrivalCity: '', totalDuration: '' });
+        currentBound = [curr];
+      }
+    }
+    if (currentBound.length > 0) {
+      bounds.push({ type: '', flights: currentBound, departureCity: '', arrivalCity: '', totalDuration: '' });
+    }
+
+    return bounds.map((b, idx) => {
+      let typeStr = `Segment ${idx + 1}`;
+      if (idx === 0) typeStr = 'Outbound';
+      else if (idx === bounds.length - 1 && bounds.length > 1) typeStr = 'Return';
+
+      const firstF = b.flights[0];
+      const lastF = b.flights[b.flights.length - 1];
+      const depCity = firstF.departureCity || firstF.departureAirportCode;
+      const arrCity = lastF.arrivalCity || lastF.arrivalAirportCode;
+
+      let totalMins = 0;
+      let durationStr = '';
+      b.flights.forEach(f => {
+        const hm = (f.duration || '').match(/(\d+)\s*h/i);
+        const mm = (f.duration || '').match(/(\d+)\s*m/i);
+        if (hm) totalMins += parseInt(hm[1], 10) * 60;
+        if (mm) totalMins += parseInt(mm[1], 10);
+        
+        const hl = (f.layover || '').match(/(\d+)\s*h/i);
+        const ml = (f.layover || '').match(/(\d+)\s*m/i);
+        if (hl) totalMins += parseInt(hl[1], 10) * 60;
+        if (ml) totalMins += parseInt(ml[1], 10);
+      });
+      if (totalMins > 0) {
+         const h = Math.floor(totalMins / 60);
+         const m = totalMins % 60;
+         durationStr = h > 0 ? `${h}h ${m}m` : `${m}m`;
+      }
+
+      return {
+        type: typeStr,
+        flights: b.flights,
+        departureCity: depCity,
+        arrivalCity: arrCity,
+        totalDuration: durationStr
+      };
+    });
+  };
+
   const getChangesText = (lang: 'en' | 'fr', offer: OfferOption) => {
     if (offer.changesOption === 'fee') {
       const feeText = offer.changesFee || (lang === 'fr' ? '[montant]' : '[amount]');
@@ -364,16 +440,15 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
       const flights = itinerary.flights || [];
       const trains = itinerary.trains || [];
 
-      flights.forEach((flight, idx) => {
-        const prefix = getSegmentPrefix(idx, flights.length);
-        const dep = flight.departureCity || flight.departureAirportCode;
-        const arr = flight.arrivalCity || flight.arrivalAirportCode;
+      const flightBounds = groupFlightsIntoBounds(flights);
+      flightBounds.forEach((bound) => {
+        const titleName = language === 'fr' ? (bound.type === 'Outbound' ? 'Aller' : bound.type === 'Return' ? 'Retour' : bound.type) : bound.type;
 
         html += `
         <div style="margin-bottom: 32px;">
-          <div style="margin-bottom: 8px; font-size: 15px;">
-            <span style="font-weight: bold; text-decoration: underline;">${prefix}${dep} &rarr; ${arr}</span>
-            ${flight.duration ? `<span style="margin-left: 12px; font-weight: normal;">${flight.duration}</span>` : ''}
+          <div style="margin-bottom: 12px; font-size: 15px;">
+            <span style="font-weight: bold; text-decoration: underline;">${titleName}: ${bound.departureCity} &rarr; ${bound.arrivalCity}</span>
+            ${bound.totalDuration ? `<span style="margin-left: 12px; font-weight: normal; color: #334155;">${bound.totalDuration}</span>` : ''}
           </div>
           <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border: none; width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
             <thead>
@@ -390,6 +465,10 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
               </tr>
             </thead>
             <tbody>
+        `;
+        
+        bound.flights.forEach((flight) => {
+          html += `
               <tr>
                 <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top;">${flight.departureDate || '-'}</td>
                 <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top;">${flight.flightNumber || '-'}</td>
@@ -407,9 +486,12 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                 <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #475569;">${flight.layover || '-'}</td>
                 <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #475569;">${flight.aircraft || '-'}</td>
               </tr>
+          `;
+        });
+
+        html += `
             </tbody>
           </table>
-          ${flight.price ? `<div style="margin-top: 12px; text-align: right; font-size: 14px; font-weight: bold; color: #0f172a;">Price: ${flight.price}</div>` : ''}
         </div>
         `;
       });
@@ -564,19 +646,18 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
       }
       
       const flights = itinerary.flights || [];
-      const trains = itinerary.trains || [];
-
-      flights.forEach((flight, idx) => {
-        const prefix = getSegmentPrefix(idx, flights.length);
-        const dep = flight.departureCity || flight.departureAirportCode;
-        const arr = flight.arrivalCity || flight.arrivalAirportCode;
-
-        text += `${prefix}${dep} -> ${arr}   ${flight.duration || ''}\n`;
+      const flightBounds = groupFlightsIntoBounds(flights);
+      flightBounds.forEach((bound) => {
+        const titleName = language === 'fr' ? (bound.type === 'Outbound' ? 'Aller' : bound.type === 'Return' ? 'Retour' : bound.type) : bound.type;
+        text += `${titleName}: ${bound.departureCity} -> ${bound.arrivalCity}   ${bound.totalDuration}\n`;
         text += `Date\tFlight\tCarrier\tDeparts\tArrives\tCabin\tDuration\tLayover\tAircraft\n`;
-        text += `${flight.departureDate || '-'}\t${flight.flightNumber || '-'}\t${flight.airline || '-'}\t${flight.departureAirportCode} ${flight.departureTime || '-'}\t${flight.arrivalAirportCode} ${flight.arrivalTime || '-'}\t${flight.cabinClass || '-'}\t${flight.duration || '-'}\t${flight.layover || '-'}\t${flight.aircraft || '-'}\n`;
-        if (flight.price) text += `Price: ${flight.price}\n`;
+        bound.flights.forEach((flight) => {
+          text += `${flight.departureDate || '-'}\t${flight.flightNumber || '-'}\t${flight.airline || '-'}\t${flight.departureAirportCode} ${flight.departureTime}\t${flight.arrivalAirportCode} ${flight.arrivalTime}\t${flight.cabinClass || '-'}\t${flight.duration || '-'}\t${flight.layover || '-'}\t${flight.aircraft || '-'}\n`;
+        });
         text += `\n`;
       });
+
+      const trains = itinerary.trains || [];
 
       trains.forEach((train, idx) => {
         const prefix = getSegmentPrefix(idx, trains.length, true);
@@ -711,13 +792,13 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
           )}
         </div>
 
-        {flights.map((flight, idx) => (
-          <div key={`flight-${idx}`} className="mb-10 last:mb-0">
+        {groupFlightsIntoBounds(flights).map((bound, bIdx) => (
+          <div key={`bound-${bIdx}`} className="mb-10 last:mb-0">
             <div className="flex items-baseline gap-3 mb-4">
               <h3 className="text-base font-bold text-slate-900 underline decoration-slate-300 underline-offset-4">
-                {getSegmentPrefix(idx, flights.length)}{flight.departureCity || flight.departureAirportCode} → {flight.arrivalCity || flight.arrivalAirportCode}
+                {bound.type}: {bound.departureCity} → {bound.arrivalCity}
               </h3>
-              {flight.duration && <span className="text-slate-800 font-medium">{flight.duration}</span>}
+              {bound.totalDuration && <span className="text-slate-800 font-medium">{bound.totalDuration}</span>}
             </div>
             
             <table className="w-full text-left border-collapse min-w-[900px]">
@@ -735,29 +816,31 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                 </tr>
               </thead>
               <tbody className="text-sm text-slate-900">
-                <tr className="border-b border-slate-100">
-                  <td className="py-4 px-3 align-top">{flight.departureDate}</td>
-                  <td className="py-4 px-3 align-top">{flight.flightNumber}</td>
-                  <td className="py-4 px-3 align-top font-bold italic text-slate-700">{flight.airline}</td>
-                  <td className="py-4 px-3 align-top">
-                    <div className="text-slate-700">{flight.departureAirportName || flight.departureAirportCode} ({flight.departureAirportCode})</div>
-                    <div className="font-bold mt-1">{flight.departureTime}</div>
-                  </td>
-                  <td className="py-4 px-3 align-top">
-                    <div className="text-slate-700">{flight.arrivalAirportName || flight.arrivalAirportCode} ({flight.arrivalAirportCode})</div>
-                    <div className="font-bold mt-1">{flight.arrivalTime}</div>
-                  </td>
-                  <td className="py-4 px-3 align-top text-slate-600">{flight.cabinClass || '-'}</td>
-                  <td className="py-4 px-3 align-top text-slate-600">{flight.duration || '-'}</td>
-                  <td className="py-4 px-3 align-top text-slate-600">{flight.layover || '-'}</td>
-                  <td className="py-4 px-3 align-top text-slate-600">{flight.aircraft || '-'}</td>
-                </tr>
+                {bound.flights.map((flight, fIdx) => (
+                  <tr key={`flight-${bIdx}-${fIdx}`} className="border-b border-slate-100">
+                    <td className="py-4 px-3 align-top">{flight.departureDate}</td>
+                    <td className="py-4 px-3 align-top">{flight.flightNumber}</td>
+                    <td className="py-4 px-3 align-top font-bold italic text-slate-700">{flight.airline}</td>
+                    <td className="py-4 px-3 align-top">
+                      <div className="text-slate-700">{flight.departureAirportName || flight.departureAirportCode} ({flight.departureAirportCode})</div>
+                      <div className="font-bold mt-1">{flight.departureTime}</div>
+                    </td>
+                    <td className="py-4 px-3 align-top">
+                      <div className="text-slate-700">{flight.arrivalAirportName || flight.arrivalAirportCode} ({flight.arrivalAirportCode})</div>
+                      <div className="font-bold mt-1">{flight.arrivalTime}</div>
+                    </td>
+                    <td className="py-4 px-3 align-top text-slate-600">{flight.cabinClass || '-'}</td>
+                    <td className="py-4 px-3 align-top text-slate-600">{flight.duration || '-'}</td>
+                    <td className="py-4 px-3 align-top text-slate-600">{flight.layover || '-'}</td>
+                    <td className="py-4 px-3 align-top text-slate-600">{flight.aircraft || '-'}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
-            {flight.price && (
+            {bound.flights.some(f => f.price) && (
               <div className="mt-4 flex justify-end">
                 <span className="inline-block bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-sm font-bold text-slate-800">
-                  Price: {flight.price}
+                  Price: {bound.flights.map(f => f.price).filter(Boolean).join(' + ')}
                 </span>
               </div>
             )}
