@@ -474,7 +474,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                 <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top;">${flight.flightNumber || '-'}</td>
                 <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top;">
                   ${flight.flightNumber && flight.flightNumber.includes(' ') && flight.flightNumber.split(' ')[0].length === 2 ? 
-                    `<img src="https://raw.githubusercontent.com/Keiji93/PNR-DECODER/main/public/airlines-logos/${flight.flightNumber.split(' ')[0].toLowerCase()}.png" alt="${flight.airline}" width="24" height="24" style="vertical-align: middle; margin-right: 8px; background-color: white; border-radius: 4px; padding: 2px;" onerror="this.style.display='none'" />` : ''}
+                    `<img src="https://raw.githubusercontent.com/Keiji93/PNR-DECODER/main/public/airlines-logos/${flight.flightNumber.split(' ')[0].toUpperCase()}.png" alt="${flight.airline}" width="24" height="24" style="vertical-align: middle; margin-right: 8px; background-color: white; border-radius: 4px; padding: 2px;" onerror="this.style.display='none'" />` : ''}
                   <span style="font-weight: bold; font-style: italic; color: #334155; vertical-align: middle;">${flight.airline || '-'}</span>
                 </td>
                 <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top;">
@@ -832,7 +832,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                       <div className="flex items-center gap-2">
                         {flight.flightNumber && flight.flightNumber.includes(' ') && flight.flightNumber.split(' ')[0].length === 2 && (
                           <img 
-                            src={`/airlines-logos/${flight.flightNumber.split(' ')[0].toLowerCase()}.png`}
+                            src={`/airlines-logos/${flight.flightNumber.split(' ')[0].toUpperCase()}.png`}
                             alt={flight.airline}
                             className="w-6 h-6 object-contain bg-white rounded-sm shadow-sm p-[2px]"
                             onError={(e) => {
