@@ -1,5 +1,5 @@
 import { Copy, Check, FileText, Plus, Trash2, Loader2, Train } from 'lucide-react';
-import { ParsedPNR, TrainSegment, FlightSegment } from '../types';
+import { ParsedPNR, TrainSegment, FlightSegment, HotelSegment } from '../types';
 import { motion } from 'motion/react';
 import { useState, useRef, useEffect } from 'react';
 import { parsePNR } from '../services/geminiService';
@@ -219,6 +219,24 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
         const newTrains = [...(newItineraries[itineraryIndex - 1].trains || [])];
         newTrains[trainIndex] = { ...newTrains[trainIndex], tarif: newTarif };
         newItineraries[itineraryIndex - 1] = { ...newItineraries[itineraryIndex - 1], trains: newTrains };
+        return newItineraries;
+      });
+    }
+  };
+
+  const handleHotelChange = (itineraryIndex: number, hotelIndex: number, field: keyof HotelSegment, value: string) => {
+    if (itineraryIndex === 0) {
+      setPrimaryItinerary(prev => {
+        const newHotels = [...(prev.hotels || [])];
+        newHotels[hotelIndex] = { ...newHotels[hotelIndex], [field]: value };
+        return { ...prev, hotels: newHotels };
+      });
+    } else {
+      setAdditionalItineraries(prev => {
+        const newItineraries = [...prev];
+        const newHotels = [...(newItineraries[itineraryIndex - 1].hotels || [])];
+        newHotels[hotelIndex] = { ...newHotels[hotelIndex], [field]: value };
+        newItineraries[itineraryIndex - 1] = { ...newItineraries[itineraryIndex - 1], hotels: newHotels };
         return newItineraries;
       });
     }
@@ -567,7 +585,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
 
       if (type === 'offer' || type === 'modification') {
         const offers = itineraryOffers[itIdx] || [];
-        if (offers.length > 0) {
+        if (offers.length > 0 && (flights.length > 0 || trains.length > 0)) {
           html += `<div style="margin-top: 16px; margin-bottom: 32px;">`;
           offers.forEach((offer, index) => {
             const isMultiple = offers.length > 1;
@@ -708,8 +726,10 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
 
       if (type === 'offer' || type === 'modification') {
         const offers = itineraryOffers[itIdx] || [];
-        offers.forEach((offer, index) => {
-          if (offers.length > 1) {
+        const hasFlightsOrTrains = flights.length > 0 || trains.length > 0;
+        if (hasFlightsOrTrains) {
+          offers.forEach((offer, index) => {
+            if (offers.length > 1) {
             text += `Option ${index + 1}\n`;
             text += `--------\n`;
           }
@@ -735,6 +755,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
             text += `- Cancellation: ${getRefundabilityText('en', offer)}\n\n`;
           }
         });
+        }
       }
     });
 
@@ -967,7 +988,23 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
 
         {hotels.map((hotel, idx) => (
           <div key={`hotel-${idx}`} className="mb-6 last:mb-0">
-            <div className="text-sm font-semibold mb-2">{hotel.checkInDate} - {hotel.checkOutDate}</div>
+            <div className="flex items-center gap-2 mb-3">
+               <input 
+                 type="text" 
+                 value={hotel.checkInDate || ''} 
+                 onChange={(e) => handleHotelChange(index, idx, 'checkInDate', e.target.value)}
+                 className="text-sm font-semibold text-slate-800 border border-slate-300 rounded px-2 py-1 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-32"
+                 placeholder="Check-in Date"
+               />
+               <span className="text-slate-500 font-medium">-</span>
+               <input 
+                 type="text" 
+                 value={hotel.checkOutDate || ''} 
+                 onChange={(e) => handleHotelChange(index, idx, 'checkOutDate', e.target.value)}
+                 className="text-sm font-semibold text-slate-800 border border-slate-300 rounded px-2 py-1 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-32"
+                 placeholder="Check-out Date"
+               />
+            </div>
             <div className="text-base font-bold text-black">{hotel.hotelName}</div>
             <div className="text-sm text-slate-700">{hotel.address}</div>
             <div className="h-4"></div>
@@ -1009,8 +1046,9 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
           </div>
         )}
 
-        <div className="mt-8 pt-6 border-t border-slate-200">
-          <h3 className="text-md font-bold text-slate-900 mb-4">Offers for {isAdditional ? `Itinerary ${index + 1}` : 'this Itinerary'}</h3>
+        {(flights.length > 0 || trains.length > 0) && (
+          <div className="mt-8 pt-6 border-t border-slate-200">
+            <h3 className="text-md font-bold text-slate-900 mb-4">Offers for {isAdditional ? `Itinerary ${index + 1}` : 'this Itinerary'}</h3>
           <div className="space-y-4">
             {(itineraryOffers[index] || []).map((offer, offerIdx) => (
               <div key={offer.id} className="relative border border-slate-200 rounded-lg p-4 bg-slate-50">
@@ -1126,6 +1164,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
             </button>
           </div>
         </div>
+        )}
       </div>
     );
   };
