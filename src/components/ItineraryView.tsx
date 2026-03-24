@@ -628,11 +628,11 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
           html += `
               <tr>
                 <td ${rowSpanAttr} align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #334155; font-weight: bold;">${car.supplier}</td>
-                <td align="left" style="text-align: left; padding: 16px 12px; ${dropOffExists ? 'border-bottom: none;' : 'border-bottom: 1px solid #e2e8f0;'} border-top: none; border-left: none; border-right: none; vertical-align: top;">
+                <td align="left" style="text-align: left; padding: 16px 12px; ${dropOffExists ? 'border-bottom: 1px solid #f1f5f9;' : 'border-bottom: 1px solid #e2e8f0;'} border-top: none; border-left: none; border-right: none; vertical-align: top;">
                   <div style="font-weight: bold;">${car.pickUpDate || '(Pick-up Date)'}</div>
                   <div style="margin-top: 4px; color: #475569;">${car.pickUpTime || ''}</div>
                 </td>
-                <td align="left" style="text-align: left; padding: 16px 12px; ${dropOffExists ? 'border-bottom: none;' : 'border-bottom: 1px solid #e2e8f0;'} border-top: none; border-left: none; border-right: none; vertical-align: top; color: #334155;">
+                <td align="left" style="text-align: left; padding: 16px 12px; ${dropOffExists ? 'border-bottom: 1px solid #f1f5f9;' : 'border-bottom: 1px solid #e2e8f0;'} border-top: none; border-left: none; border-right: none; vertical-align: top; color: #334155;">
                   <div style="font-size: 11px; font-weight: bold; text-transform: uppercase; color: #64748b; margin-bottom: 4px;">PICK-UP</div>
                   ${car.pickUpLocationName ? `<div style="font-weight: bold; color: #0f172a; margin-bottom: 2px;">${car.pickUpLocationName}</div>` : ''}
                   <div style="font-size: 13px;">${car.pickUpLocation}</div>
@@ -641,9 +641,8 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                   <div style="font-weight: bold; color: #0f172a; margin-bottom: 6px;">${car.model}</div>
                   <div style="font-size: 12px; color: #475569; margin-bottom: 4px;">${car.acrissCode}</div>
                   <div style="font-size: 12px; color: #475569; margin-bottom: 4px;">Mileage: ${car.mileage}</div>
-                  <div style="font-size: 11px; margin-top: 6px; color: #64748b;">${car.instructions}</div>
                 </td>
-                <td align="left" style="text-align: left; padding: 16px 12px; ${dropOffExists ? 'border-bottom: none;' : 'border-bottom: 1px solid #e2e8f0;'} border-top: none; border-left: none; border-right: none; vertical-align: top; color: #475569;">
+                <td align="left" style="text-align: left; padding: 16px 12px; ${dropOffExists ? 'border-bottom: 1px solid #f1f5f9;' : 'border-bottom: 1px solid #e2e8f0;'} border-top: none; border-left: none; border-right: none; vertical-align: top; color: #475569;">
                   <div>Rate: <span style="font-weight: bold; color: #0f172a;">${car.ratePlan}</span></div>
                 </td>
               </tr>
@@ -1173,7 +1172,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                            placeholder="Pick-up Time"
                          />
                       </td>
-                      <td className="py-4 px-3 align-top">
+                      <td className={`py-4 px-3 align-top ${dropOffExists ? 'border-b border-slate-100' : ''}`}>
                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pick-up</div>
                          <input 
                            type="text" 
@@ -1188,9 +1187,8 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                         <div className="font-bold text-slate-900">{car.model}</div>
                         <div className="text-xs text-slate-500 mt-1">{car.acrissCode}</div>
                         <div className="text-xs text-slate-500 mt-1">Mileage: {car.mileage}</div>
-                        <div className="text-xs text-slate-500 mt-2">{car.instructions}</div>
                       </td>
-                      <td className="py-4 px-3 align-top text-slate-700">
+                      <td className={`py-4 px-3 align-top text-slate-700 ${dropOffExists ? 'border-b border-slate-100' : ''}`}>
                         <div>Rate: <span className="font-bold text-slate-900">{car.ratePlan}</span></div>
                       </td>
                     </tr>
