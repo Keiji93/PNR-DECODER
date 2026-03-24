@@ -472,8 +472,8 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
             <thead>
               <tr style="background-color: #f8fafc;" bgcolor="#f8fafc">
                 <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Date</th>
-                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 8%;">Flight</th>
                 <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 12%;">Carrier</th>
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 8%;">Flight</th>
                 <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 22%;">Departs</th>
                 <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 22%;">Arrives</th>
                 <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 8%;">Cabin</th>
@@ -488,12 +488,12 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
           html += `
               <tr>
                 <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top;">${flight.departureDate || '-'}</td>
-                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top;">${flight.flightNumber || '-'}</td>
                 <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top;">
                   ${flight.flightNumber && flight.flightNumber.includes(' ') && flight.flightNumber.split(' ')[0].length === 2 ? 
                     `<img src="https://raw.githubusercontent.com/Keiji93/PNR-DECODER/main/public/airlines-logos/${flight.flightNumber.split(' ')[0].toUpperCase()}.png" alt="${flight.airline}" width="68" style="max-width: 68px; height: auto; display: block; margin-bottom: 6px; background-color: white; border-radius: 4px; padding: 2px;" onerror="this.style.display='none'" />` : ''}
                   <div style="font-weight: bold; font-size: 11px; font-style: italic; color: #64748b;">${flight.airline || '-'}</div>
                 </td>
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top;">${flight.flightNumber || '-'}</td>
                 <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top;">
                   <div style="color: #334155;">${flight.departureAirportName || flight.departureAirportCode} (${flight.departureAirportCode})</div>
                   <div style="font-weight: bold; margin-top: 4px;">${flight.departureTime || '-'}</div>
@@ -690,10 +690,10 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
       flightBounds.forEach((bound) => {
         const titleName = language === 'fr' ? (bound.type === 'Outbound' ? 'Aller' : bound.type === 'Return' ? 'Retour' : bound.type) : bound.type;
         text += `${titleName}: ${bound.departureCity} -> ${bound.arrivalCity}   ${bound.totalDuration}\n`;
-        text += `Date\tFlight\tCarrier\tDeparts\tArrives\tCabin\tDuration\tLayover\n`;
+        text += `Date\tCarrier\tFlight\tDeparts\tArrives\tCabin\tDuration\tLayover\n`;
         bound.flights.forEach((flight) => {
           const stopsText = flight.stops && flight.stops !== '0' && flight.stops !== '-' ? ` (${flight.stops} Stop${flight.stops === '1' ? '' : 's'})` : '';
-          text += `${flight.departureDate || '-'}\t${flight.flightNumber || '-'}\t${flight.airline || '-'}\t${flight.departureAirportCode} ${flight.departureTime}\t${flight.arrivalAirportCode} ${flight.arrivalTime}\t${flight.cabinClass || '-'}\t${flight.duration || '-'}${stopsText}\t${flight.layover || '-'}\n`;
+          text += `${flight.departureDate || '-'}\t${flight.airline || '-'}\t${flight.flightNumber || '-'}\t${flight.departureAirportCode} ${flight.departureTime}\t${flight.arrivalAirportCode} ${flight.arrivalTime}\t${flight.cabinClass || '-'}\t${flight.duration || '-'}${stopsText}\t${flight.layover || '-'}\n`;
         });
         text += `\n`;
       });
@@ -862,8 +862,8 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
               <thead>
                 <tr className="bg-slate-50 border-y border-slate-200 text-sm text-slate-800">
                   <th className="py-2 px-3 font-medium w-[10%]">Date</th>
-                  <th className="py-2 px-3 font-medium w-[8%]">Flight</th>
                   <th className="py-2 px-3 font-medium w-[12%]">Carrier</th>
+                  <th className="py-2 px-3 font-medium w-[8%]">Flight</th>
                   <th className="py-2 px-3 font-medium w-[22%]">Departs</th>
                   <th className="py-2 px-3 font-medium w-[22%]">Arrives</th>
                   <th className="py-2 px-3 font-medium w-[8%]">Cabin</th>
@@ -875,7 +875,6 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                 {bound.flights.map((flight, fIdx) => (
                   <tr key={`flight-${bIdx}-${fIdx}`} className="border-b border-slate-100">
                     <td className="py-4 px-3 align-top">{flight.departureDate}</td>
-                    <td className="py-4 px-3 align-top">{flight.flightNumber}</td>
                     <td className="py-4 px-3 align-top">
                       <div className="flex flex-col items-start gap-1">
                         {flight.flightNumber && flight.flightNumber.includes(' ') && flight.flightNumber.split(' ')[0].length === 2 && (
@@ -891,6 +890,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                         <span className="text-xs font-bold italic text-slate-500">{flight.airline}</span>
                       </div>
                     </td>
+                    <td className="py-4 px-3 align-top">{flight.flightNumber}</td>
                     <td className="py-4 px-3 align-top">
                       <div className="text-slate-700">{flight.departureAirportName || flight.departureAirportCode} ({flight.departureAirportCode})</div>
                       <div className="font-bold mt-1">{flight.departureTime}</div>
