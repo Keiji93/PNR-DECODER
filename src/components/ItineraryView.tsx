@@ -1164,9 +1164,15 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                       <div className="font-bold text-slate-900">{car.model}</div>
                       <div className="text-xs text-slate-500 mt-1">{car.acrissCode}</div>
                     </td>
-                    <td className="py-4 px-3 align-top text-slate-700">
-                      {car.locationName && <div className="font-bold text-slate-900 mb-1">{car.locationName}</div>}
-                      <div>{car.pickUpDropOffLocation}</div>
+                    <td className="py-4 px-3 align-top">
+                       <input 
+                         type="text" 
+                         value={car.locationName || ''} 
+                         onChange={(e) => handleCarChange(index, idx, 'locationName', e.target.value)}
+                         className="text-sm font-bold text-slate-800 border border-slate-300 rounded px-2 py-1 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full mb-1"
+                         placeholder="Airport / Station"
+                       />
+                       <div className="text-xs text-slate-500 mt-1 leading-snug">{car.pickUpDropOffLocation}</div>
                     </td>
                     <td className="py-4 px-3 align-top text-slate-700">
                       <div>Rate: {car.ratePlan}</div>
