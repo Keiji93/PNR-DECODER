@@ -1,7 +1,7 @@
 import { Copy, Check, FileText, Plus, Trash2, Loader2, Train } from 'lucide-react';
 import { ParsedPNR, TrainSegment, FlightSegment, HotelSegment, CarSegment } from '../types';
 import { motion } from 'motion/react';
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { parsePNR } from '../services/geminiService';
 
 type OfferOption = {
@@ -611,56 +611,62 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
           <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border: none; width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
             <thead>
               <tr style="background-color: #f8fafc;" bgcolor="#f8fafc">
-                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 15%;">Pick-up</th>
-                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 15%;">Drop-off</th>
-                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Supplier</th>
-                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 15%;">Model</th>
-                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 20%;">Location</th>
-                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 15%;">Details</th>
-                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 10%;">Price</th>
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 12%;">Supplier</th>
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 18%;">Pick-up / Drop-off</th>
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 30%;">Location</th>
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 25%;">Model & Details</th>
+                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 15%;">Price</th>
               </tr>
             </thead>
             <tbody>
         `;
         
         cars.forEach((car) => {
+          const dropOffExists = car.dropOffLocation || car.dropOffDate;
+          const rowSpanAttr = dropOffExists ? 'rowspan="2"' : '';
+          
           html += `
               <tr>
-                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top;">
+                <td ${rowSpanAttr} align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #334155; font-weight: bold;">${car.supplier}</td>
+                <td align="left" style="text-align: left; padding: 16px 12px; ${dropOffExists ? 'border-bottom: none;' : 'border-bottom: 1px solid #e2e8f0;'} border-top: none; border-left: none; border-right: none; vertical-align: top;">
                   <div style="font-weight: bold;">${car.pickUpDate || '(Pick-up Date)'}</div>
-                  <div style="margin-top: 4px;">${car.pickUpTime || ''}</div>
+                  <div style="margin-top: 4px; color: #475569;">${car.pickUpTime || ''}</div>
                 </td>
-                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top;">
-                  <div style="font-weight: bold;">${car.dropOffDate || '(Drop-off Date)'}</div>
-                  <div style="margin-top: 4px;">${car.dropOffTime || ''}</div>
+                <td align="left" style="text-align: left; padding: 16px 12px; ${dropOffExists ? 'border-bottom: none;' : 'border-bottom: 1px solid #e2e8f0;'} border-top: none; border-left: none; border-right: none; vertical-align: top; color: #334155;">
+                  <div style="font-size: 11px; font-weight: bold; text-transform: uppercase; color: #64748b; margin-bottom: 4px;">PICK-UP</div>
+                  ${car.pickUpLocationName ? `<div style="font-weight: bold; color: #0f172a; margin-bottom: 2px;">${car.pickUpLocationName}</div>` : ''}
+                  <div style="font-size: 13px;">${car.pickUpLocation}</div>
                 </td>
-                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #334155; font-weight: bold;">${car.supplier}</td>
-                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top;">
-                  <div style="font-weight: bold; color: #0f172a;">${car.model}</div>
-                  <div style="font-size: 11px; margin-top: 4px; color: #64748b;">${car.acrissCode}</div>
+                <td ${rowSpanAttr} align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #334155;">
+                  <div style="font-weight: bold; color: #0f172a; margin-bottom: 6px;">${car.model}</div>
+                  <div style="font-size: 12px; color: #475569; margin-bottom: 4px;">${car.acrissCode}</div>
+                  <div style="font-size: 12px; color: #475569; margin-bottom: 4px;">Mileage: ${car.mileage}</div>
+                  <div style="font-size: 11px; margin-top: 6px; color: #64748b;">${car.instructions}</div>
                 </td>
-                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #334155;">
-                  <div style="margin-bottom: 8px;">
-                    <div style="font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 2px;">Pick-up</div>
-                    ${car.pickUpLocationName ? `<div style="font-weight: bold; color: #0f172a; margin-bottom: 2px;">${car.pickUpLocationName}</div>` : ''}
-                    <div>${car.pickUpLocation}</div>
-                  </div>
-                  ${car.dropOffLocation && car.dropOffLocation !== car.pickUpLocation ? `
-                  <div>
-                    <div style="font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 2px;">Drop-off</div>
-                    ${car.dropOffLocationName ? `<div style="font-weight: bold; color: #0f172a; margin-bottom: 2px;">${car.dropOffLocationName}</div>` : ''}
-                    <div>${car.dropOffLocation}</div>
-                  </div>
-                  ` : ''}
+                <td align="left" style="text-align: left; padding: 16px 12px; ${dropOffExists ? 'border-bottom: none;' : 'border-bottom: 1px solid #e2e8f0;'} border-top: none; border-left: none; border-right: none; vertical-align: top; color: #475569;">
+                  <div>Rate: <span style="font-weight: bold; color: #0f172a;">${car.ratePlan}</span></div>
                 </td>
-                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #475569;">
-                  <div>Rate: ${car.ratePlan}</div>
-                  <div style="margin-top: 4px;">Mileage: ${car.mileage}</div>
-                  <div style="font-size: 11px; margin-top: 4px; color: #64748b;">${car.instructions}</div>
-                </td>
-                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; font-weight: bold; color: #0f172a;">${car.totalPrice}</td>
               </tr>
           `;
+          
+          if (dropOffExists) {
+            html += `
+              <tr>
+                <td align="left" style="text-align: left; padding: 0px 12px 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top;">
+                  <div style="font-weight: bold;">${car.dropOffDate || '(Drop-off Date)'}</div>
+                  <div style="margin-top: 4px; color: #475569;">${car.dropOffTime || ''}</div>
+                </td>
+                <td align="left" style="text-align: left; padding: 0px 12px 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #334155;">
+                  <div style="font-size: 11px; font-weight: bold; text-transform: uppercase; color: #64748b; margin-bottom: 4px;">DROP-OFF</div>
+                  ${car.dropOffLocationName ? `<div style="font-weight: bold; color: #0f172a; margin-bottom: 2px;">${car.dropOffLocationName}</div>` : ''}
+                  <div style="font-size: 13px;">${car.dropOffLocation || car.pickUpLocation}</div>
+                </td>
+                <td align="left" style="text-align: left; padding: 0px 12px 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #475569;">
+                  <div>Total: <span style="font-weight: bold; color: #0f172a;">${car.totalPrice}</span></div>
+                </td>
+              </tr>
+            `;
+          }
         });
         
         html += `
@@ -814,12 +820,21 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
       const cars = itinerary.cars || [];
       if (cars.length > 0) {
         text += `--- Car Rental ---\n`;
-        text += `Pick-up\tDrop-off\tSupplier\tModel\tLocation\tRate Plan\tPrice\n`;
+        text += `Supplier\tPick-up / Drop-off\tLocation\tModel & Details\tPrice\n`;
         cars.forEach((car) => {
-          const pLoc = car.pickUpLocationName ? `${car.pickUpLocationName}, ${car.pickUpLocation}` : car.pickUpLocation;
-          const dLoc = (car.dropOffLocation && car.dropOffLocation !== car.pickUpLocation) ? 
-            (car.dropOffLocationName ? ` -> ${car.dropOffLocationName}, ${car.dropOffLocation}` : ` -> ${car.dropOffLocation}`) : '';
-          text += `${car.pickUpDate || '-'} ${car.pickUpTime || '-'}\t${car.dropOffDate || '-'} ${car.dropOffTime || '-'}\t${car.supplier}\t${car.model}\t${pLoc}${dLoc}\t${car.ratePlan}\t${car.totalPrice}\n`;
+          const dropOffExists = car.dropOffLocation || car.dropOffDate;
+          
+          const pLocName = car.pickUpLocationName ? `${car.pickUpLocationName}, ` : '';
+          const pLoc = `PICK-UP: ${pLocName}${car.pickUpLocation}`;
+          const modelDetails = `${car.model} | ${car.acrissCode} | Mileage: ${car.mileage}`;
+          
+          text += `${car.supplier}\t${car.pickUpDate || '-'} ${car.pickUpTime || '-'}\t${pLoc}\t${modelDetails}\tRate: ${car.ratePlan}\n`;
+          
+          if (dropOffExists) {
+            const dLocName = car.dropOffLocationName ? `${car.dropOffLocationName}, ` : '';
+            const dLoc = `DROP-OFF: ${dLocName}${car.dropOffLocation || car.pickUpLocation}`;
+            text += `\t${car.dropOffDate || '-'} ${car.dropOffTime || '-'}\t${dLoc}\t\tTotal: ${car.totalPrice}\n`;
+          }
         });
         text += `\n`;
       }
@@ -1127,57 +1142,38 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
             <table className="w-full text-left border-collapse min-w-[1000px]">
               <thead>
                 <tr className="bg-slate-50 border-y border-slate-200 text-sm text-slate-800">
-                  <th className="py-2 px-3 font-medium w-[15%]">Pick-up</th>
-                  <th className="py-2 px-3 font-medium w-[15%]">Drop-off</th>
-                  <th className="py-2 px-3 font-medium w-[10%]">Supplier</th>
-                  <th className="py-2 px-3 font-medium w-[15%]">Model</th>
-                  <th className="py-2 px-3 font-medium w-[20%]">Location</th>
-                  <th className="py-2 px-3 font-medium w-[15%]">Details</th>
-                  <th className="py-2 px-3 font-medium w-[10%]">Price</th>
+                  <th className="py-2 px-3 font-medium w-[12%]">Supplier</th>
+                  <th className="py-2 px-3 font-medium w-[18%]">Pick-up / Drop-off</th>
+                  <th className="py-2 px-3 font-medium w-[30%]">Location</th>
+                  <th className="py-2 px-3 font-medium w-[25%]">Model & Details</th>
+                  <th className="py-2 px-3 font-medium w-[15%]">Price</th>
                 </tr>
               </thead>
               <tbody className="text-sm text-slate-900">
-                {cars.map((car, idx) => (
-                  <tr key={`car-${idx}`} className="border-b border-slate-100">
-                    <td className="py-4 px-3 align-top">
-                       <input 
-                         type="text" 
-                         value={car.pickUpDate || ''} 
-                         onChange={(e) => handleCarChange(index, idx, 'pickUpDate', e.target.value)}
-                         className="text-sm font-semibold text-slate-800 border border-slate-300 rounded px-2 py-1 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full mb-2"
-                         placeholder="Date"
-                       />
-                       <input 
-                         type="text" 
-                         value={car.pickUpTime || ''} 
-                         onChange={(e) => handleCarChange(index, idx, 'pickUpTime', e.target.value)}
-                         className="text-sm font-semibold text-slate-800 border border-slate-300 rounded px-2 py-1 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full"
-                         placeholder="Time"
-                       />
-                    </td>
-                    <td className="py-4 px-3 align-top">
-                       <input 
-                         type="text" 
-                         value={car.dropOffDate || ''} 
-                         onChange={(e) => handleCarChange(index, idx, 'dropOffDate', e.target.value)}
-                         className="text-sm font-semibold text-slate-800 border border-slate-300 rounded px-2 py-1 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full mb-2"
-                         placeholder="Date"
-                       />
-                       <input 
-                         type="text" 
-                         value={car.dropOffTime || ''} 
-                         onChange={(e) => handleCarChange(index, idx, 'dropOffTime', e.target.value)}
-                         className="text-sm font-semibold text-slate-800 border border-slate-300 rounded px-2 py-1 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full"
-                         placeholder="Time"
-                       />
-                    </td>
-                    <td className="py-4 px-3 align-top font-bold text-slate-700">{car.supplier}</td>
-                    <td className="py-4 px-3 align-top">
-                      <div className="font-bold text-slate-900">{car.model}</div>
-                      <div className="text-xs text-slate-500 mt-1">{car.acrissCode}</div>
-                    </td>
-                    <td className="py-4 px-3 align-top">
-                       <div className={car.dropOffLocation && car.dropOffLocation !== car.pickUpLocation ? "mb-3" : ""}>
+                {cars.map((car, idx) => {
+                  const dropOffExists = car.dropOffLocation || car.dropOffDate;
+                  
+                  return (
+                  <React.Fragment key={`car-${idx}`}>
+                    <tr className={dropOffExists ? "" : "border-b border-slate-100"}>
+                      <td rowSpan={dropOffExists ? 2 : 1} className="py-4 px-3 align-top font-bold text-slate-700 border-b border-slate-100">{car.supplier}</td>
+                      <td className="py-4 px-3 align-top">
+                         <input 
+                           type="text" 
+                           value={car.pickUpDate || ''} 
+                           onChange={(e) => handleCarChange(index, idx, 'pickUpDate', e.target.value)}
+                           className="text-sm font-semibold text-slate-800 border border-slate-300 rounded px-2 py-1 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full mb-2"
+                           placeholder="Pick-up Date"
+                         />
+                         <input 
+                           type="text" 
+                           value={car.pickUpTime || ''} 
+                           onChange={(e) => handleCarChange(index, idx, 'pickUpTime', e.target.value)}
+                           className="text-sm font-semibold text-slate-800 border border-slate-300 rounded px-2 py-1 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full"
+                           placeholder="Pick-up Time"
+                         />
+                      </td>
+                      <td className="py-4 px-3 align-top">
                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pick-up</div>
                          <input 
                            type="text" 
@@ -1187,10 +1183,37 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                            placeholder="Airport / Station"
                          />
                          <div className="text-xs text-slate-500 mt-1 leading-snug">{car.pickUpLocation}</div>
-                       </div>
-                       
-                       {car.dropOffLocation && car.dropOffLocation !== car.pickUpLocation && (
-                         <div>
+                      </td>
+                      <td rowSpan={dropOffExists ? 2 : 1} className="py-4 px-3 align-top border-b border-slate-100">
+                        <div className="font-bold text-slate-900">{car.model}</div>
+                        <div className="text-xs text-slate-500 mt-1">{car.acrissCode}</div>
+                        <div className="text-xs text-slate-500 mt-1">Mileage: {car.mileage}</div>
+                        <div className="text-xs text-slate-500 mt-2">{car.instructions}</div>
+                      </td>
+                      <td className="py-4 px-3 align-top text-slate-700">
+                        <div>Rate: <span className="font-bold text-slate-900">{car.ratePlan}</span></div>
+                      </td>
+                    </tr>
+                    
+                    {dropOffExists && (
+                      <tr className="border-b border-slate-100">
+                        <td className="py-2 px-3 align-top pb-6">
+                           <input 
+                             type="text" 
+                             value={car.dropOffDate || ''} 
+                             onChange={(e) => handleCarChange(index, idx, 'dropOffDate', e.target.value)}
+                             className="text-sm font-semibold text-slate-800 border border-slate-300 rounded px-2 py-1 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full mb-2"
+                             placeholder="Drop-off Date"
+                           />
+                           <input 
+                             type="text" 
+                             value={car.dropOffTime || ''} 
+                             onChange={(e) => handleCarChange(index, idx, 'dropOffTime', e.target.value)}
+                             className="text-sm font-semibold text-slate-800 border border-slate-300 rounded px-2 py-1 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full"
+                             placeholder="Drop-off Time"
+                           />
+                        </td>
+                        <td className="py-2 px-3 align-top pb-6">
                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Drop-off</div>
                            <input 
                              type="text" 
@@ -1199,18 +1222,16 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                              className="text-sm font-bold text-slate-800 border border-slate-300 rounded px-2 py-1 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full mb-1"
                              placeholder="Drop-off Airport / Station"
                            />
-                           <div className="text-xs text-slate-500 mt-1 leading-snug">{car.dropOffLocation}</div>
-                         </div>
-                       )}
-                    </td>
-                    <td className="py-4 px-3 align-top text-slate-700">
-                      <div>Rate: {car.ratePlan}</div>
-                      <div className="mt-1">Mileage: {car.mileage}</div>
-                      <div className="text-xs text-slate-500 mt-2">{car.instructions}</div>
-                    </td>
-                    <td className="py-4 px-3 align-top font-bold text-black">{car.totalPrice}</td>
-                  </tr>
-                ))}
+                           <div className="text-xs text-slate-500 mt-1 leading-snug">{car.dropOffLocation || car.pickUpLocation}</div>
+                        </td>
+                        <td className="py-2 px-3 align-top pb-6 text-slate-700">
+                          <div>Total: <span className="font-bold text-slate-900">{car.totalPrice}</span></div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                  );
+                })}
               </tbody>
             </table>
           </div>
