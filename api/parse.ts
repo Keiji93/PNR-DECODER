@@ -86,6 +86,7 @@ You MUST return a valid JSON object matching this exact structure (do not includ
       "ratePlan": "e.g., 'EUR 53 / daily'",
       "supplier": "e.g., 'Supplied By Hertz (ZE)', extract just the supplier name",
       "acrissCode": "e.g., 'ECAE - Economy / 2/4 Door...'",
+      "locationName": "If the location is clearly an airport or train station, deduce and write its clean recognizable name here (e.g. 'John F. Kennedy International Airport' or 'Paris Charles de Gaulle Airport'). Otherwise leave blank.",
       "pickUpDropOffLocation": "e.g., 'TERMINAL 1 & 2F, PARIS DE GAULLE AP 95700, France'",
       "instructions": "e.g., 'Rental Counter in terminal and walk to vehicle.'",
       "mileage": "e.g., 'Unlimited mileage'"

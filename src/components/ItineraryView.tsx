@@ -639,7 +639,10 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                   <div style="font-weight: bold; color: #0f172a;">${car.model}</div>
                   <div style="font-size: 11px; margin-top: 4px; color: #64748b;">${car.acrissCode}</div>
                 </td>
-                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #334155;">${car.pickUpDropOffLocation}</td>
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #334155;">
+                  ${car.locationName ? `<div style="font-weight: bold; color: #0f172a; margin-bottom: 4px;">${car.locationName}</div>` : ''}
+                  <div>${car.pickUpDropOffLocation}</div>
+                </td>
                 <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #475569;">
                   <div>Rate: ${car.ratePlan}</div>
                   <div style="margin-top: 4px;">Mileage: ${car.mileage}</div>
@@ -803,7 +806,8 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
         text += `--- Car Rental ---\n`;
         text += `Pick-up\tDrop-off\tSupplier\tModel\tLocation\tRate Plan\tPrice\n`;
         cars.forEach((car) => {
-          text += `${car.pickUpDate || '-'} ${car.pickUpTime || '-'}\t${car.dropOffDate || '-'} ${car.dropOffTime || '-'}\t${car.supplier}\t${car.model}\t${car.pickUpDropOffLocation}\t${car.ratePlan}\t${car.totalPrice}\n`;
+          const loc = car.locationName ? `${car.locationName}, ${car.pickUpDropOffLocation}` : car.pickUpDropOffLocation;
+          text += `${car.pickUpDate || '-'} ${car.pickUpTime || '-'}\t${car.dropOffDate || '-'} ${car.dropOffTime || '-'}\t${car.supplier}\t${car.model}\t${loc}\t${car.ratePlan}\t${car.totalPrice}\n`;
         });
         text += `\n`;
       }
@@ -1160,7 +1164,10 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                       <div className="font-bold text-slate-900">{car.model}</div>
                       <div className="text-xs text-slate-500 mt-1">{car.acrissCode}</div>
                     </td>
-                    <td className="py-4 px-3 align-top text-slate-700">{car.pickUpDropOffLocation}</td>
+                    <td className="py-4 px-3 align-top text-slate-700">
+                      {car.locationName && <div className="font-bold text-slate-900 mb-1">{car.locationName}</div>}
+                      <div>{car.pickUpDropOffLocation}</div>
+                    </td>
                     <td className="py-4 px-3 align-top text-slate-700">
                       <div>Rate: {car.ratePlan}</div>
                       <div className="mt-1">Mileage: {car.mileage}</div>
