@@ -474,8 +474,8 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                 <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top;">${flight.flightNumber || '-'}</td>
                 <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top;">
                   ${flight.flightNumber && flight.flightNumber.includes(' ') && flight.flightNumber.split(' ')[0].length === 2 ? 
-                    `<img src="https://raw.githubusercontent.com/Keiji93/PNR-DECODER/main/public/airlines-logos/${flight.flightNumber.split(' ')[0].toUpperCase()}.png" alt="${flight.airline}" width="24" height="24" style="vertical-align: middle; margin-right: 8px; background-color: white; border-radius: 4px; padding: 2px;" onerror="this.style.display='none'" />` : ''}
-                  <span style="font-weight: bold; font-style: italic; color: #334155; vertical-align: middle;">${flight.airline || '-'}</span>
+                    `<img src="https://raw.githubusercontent.com/Keiji93/PNR-DECODER/main/public/airlines-logos/${flight.flightNumber.split(' ')[0].toUpperCase()}.png" alt="${flight.airline}" width="68" style="max-width: 68px; height: auto; display: block; margin-bottom: 6px; background-color: white; border-radius: 4px; padding: 2px;" onerror="this.style.display='none'" />` : ''}
+                  <div style="font-weight: bold; font-size: 11px; font-style: italic; color: #64748b;">${flight.airline || '-'}</div>
                 </td>
                 <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top;">
                   <div style="color: #334155;">${flight.departureAirportName || flight.departureAirportCode} (${flight.departureAirportCode})</div>
@@ -829,18 +829,18 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                     <td className="py-4 px-3 align-top">{flight.departureDate}</td>
                     <td className="py-4 px-3 align-top">{flight.flightNumber}</td>
                     <td className="py-4 px-3 align-top">
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col items-start gap-1">
                         {flight.flightNumber && flight.flightNumber.includes(' ') && flight.flightNumber.split(' ')[0].length === 2 && (
                           <img 
                             src={`/airlines-logos/${flight.flightNumber.split(' ')[0].toUpperCase()}.png`}
                             alt={flight.airline}
-                            className="w-6 h-6 object-contain bg-white rounded-sm shadow-sm p-[2px]"
+                            className="w-16 h-auto object-contain bg-white rounded shadow-sm p-1"
                             onError={(e) => {
                               (e.target as HTMLImageElement).style.display = 'none';
                             }}
                           />
                         )}
-                        <span className="font-bold italic text-slate-700">{flight.airline}</span>
+                        <span className="text-xs font-bold italic text-slate-500">{flight.airline}</span>
                       </div>
                     </td>
                     <td className="py-4 px-3 align-top">
