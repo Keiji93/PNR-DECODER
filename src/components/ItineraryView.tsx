@@ -1,5 +1,5 @@
 import { Copy, Check, FileText, Plus, Trash2, Loader2, Train } from 'lucide-react';
-import { ParsedPNR, TrainSegment, FlightSegment, HotelSegment } from '../types';
+import { ParsedPNR, TrainSegment, FlightSegment, HotelSegment, CarSegment } from '../types';
 import { motion } from 'motion/react';
 import { useState, useRef, useEffect } from 'react';
 import { parsePNR } from '../services/geminiService';
@@ -237,6 +237,24 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
         const newHotels = [...(newItineraries[itineraryIndex - 1].hotels || [])];
         newHotels[hotelIndex] = { ...newHotels[hotelIndex], [field]: value };
         newItineraries[itineraryIndex - 1] = { ...newItineraries[itineraryIndex - 1], hotels: newHotels };
+        return newItineraries;
+      });
+    }
+  };
+
+  const handleCarChange = (itineraryIndex: number, carIndex: number, field: keyof CarSegment, value: string) => {
+    if (itineraryIndex === 0) {
+      setPrimaryItinerary(prev => {
+        const newCars = [...(prev.cars || [])];
+        newCars[carIndex] = { ...newCars[carIndex], [field]: value };
+        return { ...prev, cars: newCars };
+      });
+    } else {
+      setAdditionalItineraries(prev => {
+        const newItineraries = [...prev];
+        const newCars = [...(newItineraries[itineraryIndex - 1].cars || [])];
+        newCars[carIndex] = { ...newCars[carIndex], [field]: value };
+        newItineraries[itineraryIndex - 1] = { ...newItineraries[itineraryIndex - 1], cars: newCars };
         return newItineraries;
       });
     }
@@ -583,6 +601,23 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
         `;
       });
 
+      const cars = itinerary.cars || [];
+      cars.forEach((car) => {
+        html += `
+        <div style="margin-bottom: 24px;">
+          <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: bold;">${car.pickUpDate || '(Pick-up Date)'} ${car.pickUpTime || ''} - ${car.dropOffDate || '(Drop-off Date)'} ${car.dropOffTime || ''}</p>
+          <p style="margin: 0; font-size: 15px; font-weight: bold; color: #000;">${car.supplier} - ${car.model}</p>
+          <p style="margin: 0 0 16px 0; font-size: 14px;">ACRISS Code: ${car.acrissCode}</p>
+          
+          <p style="margin: 0; font-size: 14px;"><strong>Location:</strong> ${car.pickUpDropOffLocation}</p>
+          <p style="margin: 0; font-size: 14px;"><strong>Instructions:</strong> ${car.instructions}</p>
+          <p style="margin: 0; font-size: 14px;"><strong>Mileage:</strong> ${car.mileage}</p>
+          <p style="margin: 0; font-size: 14px;"><strong>Rate Plan:</strong> ${car.ratePlan}</p>
+          <p style="margin: 12px 0 0 0; font-size: 14px; font-weight: bold; color: #000;">Total Price: ${car.totalPrice}</p>
+        </div>
+        `;
+      });
+
       if (type === 'offer' || type === 'modification') {
         const offers = itineraryOffers[itIdx] || [];
         if (offers.length > 0 && (flights.length > 0 || trains.length > 0)) {
@@ -724,6 +759,18 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
         text += `**${hotel.cancellationPolicy}**\n\n`;
       });
 
+      const cars = itinerary.cars || [];
+      cars.forEach((car) => {
+        text += `${car.pickUpDate || '(Pick-up Date)'} ${car.pickUpTime || ''} - ${car.dropOffDate || '(Drop-off Date)'} ${car.dropOffTime || ''}\n`;
+        text += `**${car.supplier} - ${car.model}**\n`;
+        text += `ACRISS Code: ${car.acrissCode}\n\n`;
+        text += `Location: ${car.pickUpDropOffLocation}\n`;
+        text += `Instructions: ${car.instructions}\n`;
+        text += `Mileage: ${car.mileage}\n`;
+        text += `Rate Plan: ${car.ratePlan}\n`;
+        text += `**Total Price: ${car.totalPrice}**\n\n`;
+      });
+
       if (type === 'offer' || type === 'modification') {
         const offers = itineraryOffers[itIdx] || [];
         const hasFlightsOrTrains = flights.length > 0 || trains.length > 0;
@@ -816,6 +863,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
     const flights = itinerary.flights || [];
     const trains = itinerary.trains || [];
     const hotels = itinerary.hotels || [];
+    const cars = itinerary.cars || [];
 
     return (
       <div key={index} className={`bg-white shadow-sm border border-slate-200 p-8 overflow-x-auto ${isAdditional ? 'rounded-xl mt-6' : 'rounded-b-xl'}`}>
@@ -1015,10 +1063,54 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
             <div className="text-sm font-bold text-black mt-2">{hotel.cancellationPolicy}</div>
           </div>
         ))}
+
+        {cars.map((car, idx) => (
+          <div key={`car-${idx}`} className="mb-6 last:mb-0">
+            <div className="flex items-center gap-2 mb-3">
+               <input 
+                 type="text" 
+                 value={car.pickUpDate || ''} 
+                 onChange={(e) => handleCarChange(index, idx, 'pickUpDate', e.target.value)}
+                 className="text-sm font-semibold text-slate-800 border border-slate-300 rounded px-2 py-1 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-28"
+                 placeholder="Pick-up Date"
+               />
+               <input 
+                 type="text" 
+                 value={car.pickUpTime || ''} 
+                 onChange={(e) => handleCarChange(index, idx, 'pickUpTime', e.target.value)}
+                 className="text-sm font-semibold text-slate-800 border border-slate-300 rounded px-2 py-1 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-24"
+                 placeholder="Time"
+               />
+               <span className="text-slate-500 font-medium">-</span>
+               <input 
+                 type="text" 
+                 value={car.dropOffDate || ''} 
+                 onChange={(e) => handleCarChange(index, idx, 'dropOffDate', e.target.value)}
+                 className="text-sm font-semibold text-slate-800 border border-slate-300 rounded px-2 py-1 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-28"
+                 placeholder="Drop-off Date"
+               />
+               <input 
+                 type="text" 
+                 value={car.dropOffTime || ''} 
+                 onChange={(e) => handleCarChange(index, idx, 'dropOffTime', e.target.value)}
+                 className="text-sm font-semibold text-slate-800 border border-slate-300 rounded px-2 py-1 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-24"
+                 placeholder="Time"
+               />
+            </div>
+            <div className="text-base font-bold text-black">{car.supplier} - {car.model}</div>
+            <div className="text-sm text-slate-700">ACRISS Code: {car.acrissCode}</div>
+            <div className="h-4"></div>
+            <div className="text-sm text-slate-700"><strong>Location:</strong> {car.pickUpDropOffLocation}</div>
+            <div className="text-sm text-slate-700"><strong>Instructions:</strong> {car.instructions}</div>
+            <div className="text-sm text-slate-700"><strong>Mileage:</strong> {car.mileage}</div>
+            <div className="text-sm text-slate-700"><strong>Rate Plan:</strong> {car.ratePlan}</div>
+            <div className="text-sm font-bold text-black mt-2">Total Price: {car.totalPrice}</div>
+          </div>
+        ))}
         
-        {flights.length === 0 && trains.length === 0 && hotels.length === 0 && (
+        {flights.length === 0 && trains.length === 0 && hotels.length === 0 && cars.length === 0 && (
           <div className="text-center p-8 text-slate-500">
-            No flight, train, or hotel segments could be parsed.
+            No flight, train, hotel, or car segments could be parsed.
           </div>
         )}
 

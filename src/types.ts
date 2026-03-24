@@ -52,12 +52,28 @@ export interface HotelSegment {
   cancellationPolicy: string;
 }
 
+export interface CarSegment {
+  model: string;
+  totalPrice: string;
+  ratePlan: string;
+  supplier: string;
+  acrissCode: string;
+  pickUpDropOffLocation: string;
+  instructions: string;
+  mileage: string;
+  pickUpDate?: string;
+  pickUpTime?: string;
+  dropOffDate?: string;
+  dropOffTime?: string;
+}
+
 export interface ParsedPNR {
   pnr: string;
   bookingReference: string;
   flights: FlightSegment[];
   trains?: TrainSegment[];
   hotels?: HotelSegment[];
+  cars?: CarSegment[];
   priceBreakdown?: PriceBreakdown;
   passengers: string[];
 }
