@@ -58,8 +58,10 @@ export interface CarSegment {
   ratePlan: string;
   supplier: string;
   acrissCode: string;
-  locationName?: string;
-  pickUpDropOffLocation: string;
+  pickUpLocationName?: string;
+  pickUpLocation: string;
+  dropOffLocationName?: string;
+  dropOffLocation?: string;
   instructions: string;
   mileage: string;
   pickUpDate?: string;

@@ -86,9 +86,11 @@ You MUST return a valid JSON object matching this exact structure (do not includ
       "ratePlan": "e.g., 'EUR 53 / daily'",
       "supplier": "e.g., 'Supplied By Hertz (ZE)', extract just the supplier name",
       "acrissCode": "e.g., 'ECAE - Economy / 2/4 Door...'",
-      "locationName": "CRITICAL: You MUST deduce the full Airport or Train Station name if there are context clues! If the instructions mention 'Airport' or 'Terminal' (e.g., 'Take Airport-provided transportation'), use the city/address to identify the exact airport. Example: 'JAMAICA, NY' or 'FEDERAL CIR' means 'John F. Kennedy International Airport'. Output the full recognizable name. Leave blank ONLY if it is strictly an off-airport local street address.",
-      "pickUpDropOffLocation": "e.g., 'TERMINAL 1 & 2F, PARIS DE GAULLE AP 95700, France'",
-      "instructions": "e.g., 'Rental Counter in terminal and walk to vehicle.'",
+      "pickUpLocationName": "CRITICAL: You MUST deduce the exact Pick-up Airport/Station name. Example: 'JAMAICA, NY' means 'John F. Kennedy International Airport'. Keep blank ONLY if it's a strict street address.",
+      "pickUpLocation": "e.g., '312 FEDERAL CIR, JAMAICA, United States of America'",
+      "dropOffLocationName": "CRITICAL: You MUST deduce the exact Drop-off Airport/Station name if applicable. Leave blank if not found or same as pick-up.",
+      "dropOffLocation": "e.g., '23320 AUTOPILOT DR, DULLES, United States of America'. ONLY populate if explicitly listed as different from pick-up.",
+      "instructions": "e.g., 'Take Airport-provided transportation...'",
       "mileage": "e.g., 'Unlimited mileage'"
     }
   ],

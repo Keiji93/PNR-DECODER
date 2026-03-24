@@ -640,8 +640,18 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                   <div style="font-size: 11px; margin-top: 4px; color: #64748b;">${car.acrissCode}</div>
                 </td>
                 <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #334155;">
-                  ${car.locationName ? `<div style="font-weight: bold; color: #0f172a; margin-bottom: 4px;">${car.locationName}</div>` : ''}
-                  <div>${car.pickUpDropOffLocation}</div>
+                  <div style="margin-bottom: 8px;">
+                    <div style="font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 2px;">Pick-up</div>
+                    ${car.pickUpLocationName ? `<div style="font-weight: bold; color: #0f172a; margin-bottom: 2px;">${car.pickUpLocationName}</div>` : ''}
+                    <div>${car.pickUpLocation}</div>
+                  </div>
+                  ${car.dropOffLocation && car.dropOffLocation !== car.pickUpLocation ? `
+                  <div>
+                    <div style="font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 2px;">Drop-off</div>
+                    ${car.dropOffLocationName ? `<div style="font-weight: bold; color: #0f172a; margin-bottom: 2px;">${car.dropOffLocationName}</div>` : ''}
+                    <div>${car.dropOffLocation}</div>
+                  </div>
+                  ` : ''}
                 </td>
                 <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #475569;">
                   <div>Rate: ${car.ratePlan}</div>
@@ -806,8 +816,10 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
         text += `--- Car Rental ---\n`;
         text += `Pick-up\tDrop-off\tSupplier\tModel\tLocation\tRate Plan\tPrice\n`;
         cars.forEach((car) => {
-          const loc = car.locationName ? `${car.locationName}, ${car.pickUpDropOffLocation}` : car.pickUpDropOffLocation;
-          text += `${car.pickUpDate || '-'} ${car.pickUpTime || '-'}\t${car.dropOffDate || '-'} ${car.dropOffTime || '-'}\t${car.supplier}\t${car.model}\t${loc}\t${car.ratePlan}\t${car.totalPrice}\n`;
+          const pLoc = car.pickUpLocationName ? `${car.pickUpLocationName}, ${car.pickUpLocation}` : car.pickUpLocation;
+          const dLoc = (car.dropOffLocation && car.dropOffLocation !== car.pickUpLocation) ? 
+            (car.dropOffLocationName ? ` -> ${car.dropOffLocationName}, ${car.dropOffLocation}` : ` -> ${car.dropOffLocation}`) : '';
+          text += `${car.pickUpDate || '-'} ${car.pickUpTime || '-'}\t${car.dropOffDate || '-'} ${car.dropOffTime || '-'}\t${car.supplier}\t${car.model}\t${pLoc}${dLoc}\t${car.ratePlan}\t${car.totalPrice}\n`;
         });
         text += `\n`;
       }
@@ -1165,14 +1177,31 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                       <div className="text-xs text-slate-500 mt-1">{car.acrissCode}</div>
                     </td>
                     <td className="py-4 px-3 align-top">
-                       <input 
-                         type="text" 
-                         value={car.locationName || ''} 
-                         onChange={(e) => handleCarChange(index, idx, 'locationName', e.target.value)}
-                         className="text-sm font-bold text-slate-800 border border-slate-300 rounded px-2 py-1 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full mb-1"
-                         placeholder="Airport / Station"
-                       />
-                       <div className="text-xs text-slate-500 mt-1 leading-snug">{car.pickUpDropOffLocation}</div>
+                       <div className={car.dropOffLocation && car.dropOffLocation !== car.pickUpLocation ? "mb-3" : ""}>
+                         <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pick-up</div>
+                         <input 
+                           type="text" 
+                           value={car.pickUpLocationName || ''} 
+                           onChange={(e) => handleCarChange(index, idx, 'pickUpLocationName', e.target.value)}
+                           className="text-sm font-bold text-slate-800 border border-slate-300 rounded px-2 py-1 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full mb-1"
+                           placeholder="Airport / Station"
+                         />
+                         <div className="text-xs text-slate-500 mt-1 leading-snug">{car.pickUpLocation}</div>
+                       </div>
+                       
+                       {car.dropOffLocation && car.dropOffLocation !== car.pickUpLocation && (
+                         <div>
+                           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Drop-off</div>
+                           <input 
+                             type="text" 
+                             value={car.dropOffLocationName || ''} 
+                             onChange={(e) => handleCarChange(index, idx, 'dropOffLocationName', e.target.value)}
+                             className="text-sm font-bold text-slate-800 border border-slate-300 rounded px-2 py-1 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full mb-1"
+                             placeholder="Drop-off Airport / Station"
+                           />
+                           <div className="text-xs text-slate-500 mt-1 leading-snug">{car.dropOffLocation}</div>
+                         </div>
+                       )}
                     </td>
                     <td className="py-4 px-3 align-top text-slate-700">
                       <div>Rate: {car.ratePlan}</div>
