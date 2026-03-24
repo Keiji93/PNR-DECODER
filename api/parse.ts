@@ -86,7 +86,7 @@ You MUST return a valid JSON object matching this exact structure (do not includ
       "ratePlan": "e.g., 'EUR 53 / daily'",
       "supplier": "e.g., 'Supplied By Hertz (ZE)', extract just the supplier name",
       "acrissCode": "e.g., 'ECAE - Economy / 2/4 Door...'",
-      "locationName": "If the location is clearly an airport or train station, deduce and write its clean recognizable name here (e.g. 'John F. Kennedy International Airport' or 'Paris Charles de Gaulle Airport'). Otherwise leave blank.",
+      "locationName": "CRITICAL: You MUST deduce the full Airport or Train Station name if there are context clues! If the instructions mention 'Airport' or 'Terminal' (e.g., 'Take Airport-provided transportation'), use the city/address to identify the exact airport. Example: 'JAMAICA, NY' or 'FEDERAL CIR' means 'John F. Kennedy International Airport'. Output the full recognizable name. Leave blank ONLY if it is strictly an off-airport local street address.",
       "pickUpDropOffLocation": "e.g., 'TERMINAL 1 & 2F, PARIS DE GAULLE AP 95700, France'",
       "instructions": "e.g., 'Rental Counter in terminal and walk to vehicle.'",
       "mileage": "e.g., 'Unlimited mileage'"
