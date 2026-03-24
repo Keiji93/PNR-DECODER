@@ -622,34 +622,31 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
         `;
         
         cars.forEach((car) => {
-          const dropOffExists = car.dropOffLocation || car.dropOffDate;
-          const rowSpanAttr = dropOffExists ? 'rowspan="2"' : '';
           
           html += `
               <tr>
-                <td ${rowSpanAttr} align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #334155; font-weight: bold;">${car.supplier}</td>
-                <td align="left" style="text-align: left; padding: 16px 12px; ${dropOffExists ? 'border-bottom: 1px solid #f1f5f9;' : 'border-bottom: 1px solid #e2e8f0;'} border-top: none; border-left: none; border-right: none; vertical-align: top;">
+                <td rowspan="2" align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #334155; font-weight: bold;">${car.supplier}</td>
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #f1f5f9; border-top: none; border-left: none; border-right: none; vertical-align: top;">
                   <div style="font-weight: bold;">${car.pickUpDate || '(Pick-up Date)'}</div>
                   <div style="margin-top: 4px; color: #475569;">${car.pickUpTime || ''}</div>
                 </td>
-                <td align="left" style="text-align: left; padding: 16px 12px; ${dropOffExists ? 'border-bottom: 1px solid #f1f5f9;' : 'border-bottom: 1px solid #e2e8f0;'} border-top: none; border-left: none; border-right: none; vertical-align: top; color: #334155;">
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #f1f5f9; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #334155;">
                   <div style="font-size: 11px; font-weight: bold; text-transform: uppercase; color: #64748b; margin-bottom: 4px;">PICK-UP</div>
                   ${car.pickUpLocationName ? `<div style="font-weight: bold; color: #0f172a; margin-bottom: 2px;">${car.pickUpLocationName}</div>` : ''}
                   <div style="font-size: 13px;">${car.pickUpLocation}</div>
                 </td>
-                <td ${rowSpanAttr} align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #334155;">
+                <td rowspan="2" align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #334155;">
                   <div style="font-weight: bold; color: #0f172a; margin-bottom: 6px;">${car.model}</div>
                   <div style="font-size: 12px; color: #475569; margin-bottom: 4px;">${car.acrissCode}</div>
                   <div style="font-size: 12px; color: #475569; margin-bottom: 4px;">Mileage: ${car.mileage}</div>
                 </td>
-                <td align="left" style="text-align: left; padding: 16px 12px; ${dropOffExists ? 'border-bottom: 1px solid #f1f5f9;' : 'border-bottom: 1px solid #e2e8f0;'} border-top: none; border-left: none; border-right: none; vertical-align: top; color: #475569;">
+                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #f1f5f9; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #475569;">
                   <div>Rate: <span style="font-weight: bold; color: #0f172a;">${car.ratePlan}</span></div>
                 </td>
               </tr>
           `;
           
-          if (dropOffExists) {
-            html += `
+          html += `
               <tr>
                 <td align="left" style="text-align: left; padding: 0px 12px 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top;">
                   <div style="font-weight: bold;">${car.dropOffDate || '(Drop-off Date)'}</div>
@@ -665,7 +662,6 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                 </td>
               </tr>
             `;
-          }
         });
         
         html += `
@@ -821,7 +817,6 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
         text += `--- Car Rental ---\n`;
         text += `Supplier\tPick-up / Drop-off\tLocation\tModel & Details\tPrice\n`;
         cars.forEach((car) => {
-          const dropOffExists = car.dropOffLocation || car.dropOffDate;
           
           const pLocName = car.pickUpLocationName ? `${car.pickUpLocationName}, ` : '';
           const pLoc = `PICK-UP: ${pLocName}${car.pickUpLocation}`;
@@ -829,11 +824,9 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
           
           text += `${car.supplier}\t${car.pickUpDate || '-'} ${car.pickUpTime || '-'}\t${pLoc}\t${modelDetails}\tRate: ${car.ratePlan}\n`;
           
-          if (dropOffExists) {
-            const dLocName = car.dropOffLocationName ? `${car.dropOffLocationName}, ` : '';
-            const dLoc = `DROP-OFF: ${dLocName}${car.dropOffLocation || car.pickUpLocation}`;
-            text += `\t${car.dropOffDate || '-'} ${car.dropOffTime || '-'}\t${dLoc}\t\tTotal: ${car.totalPrice}\n`;
-          }
+          const dLocName = car.dropOffLocationName ? `${car.dropOffLocationName}, ` : '';
+          const dLoc = `DROP-OFF: ${dLocName}${car.dropOffLocation || car.pickUpLocation}`;
+          text += `\t${car.dropOffDate || '-'} ${car.dropOffTime || '-'}\t${dLoc}\t\tTotal: ${car.totalPrice}\n`;
         });
         text += `\n`;
       }
@@ -1150,13 +1143,12 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
               </thead>
               <tbody className="text-sm text-slate-900">
                 {cars.map((car, idx) => {
-                  const dropOffExists = car.dropOffLocation || car.dropOffDate;
                   
                   return (
                   <React.Fragment key={`car-${idx}`}>
-                    <tr className={dropOffExists ? "" : "border-b border-slate-100"}>
-                      <td rowSpan={dropOffExists ? 2 : 1} className="py-4 px-3 align-top font-bold text-slate-700 border-b border-slate-100">{car.supplier}</td>
-                      <td className="py-4 px-3 align-top">
+                    <tr className="">
+                      <td rowSpan={2} className="py-4 px-3 align-top font-bold text-slate-700 border-b border-slate-100">{car.supplier}</td>
+                      <td className="py-4 px-3 align-top border-b border-slate-100">
                          <input 
                            type="text" 
                            value={car.pickUpDate || ''} 
@@ -1172,7 +1164,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                            placeholder="Pick-up Time"
                          />
                       </td>
-                      <td className={`py-4 px-3 align-top ${dropOffExists ? 'border-b border-slate-100' : ''}`}>
+                      <td className="py-4 px-3 align-top border-b border-slate-100">
                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pick-up</div>
                          <input 
                            type="text" 
@@ -1183,18 +1175,17 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                          />
                          <div className="text-xs text-slate-500 mt-1 leading-snug">{car.pickUpLocation}</div>
                       </td>
-                      <td rowSpan={dropOffExists ? 2 : 1} className="py-4 px-3 align-top border-b border-slate-100">
+                      <td rowSpan={2} className="py-4 px-3 align-top border-b border-slate-100">
                         <div className="font-bold text-slate-900">{car.model}</div>
                         <div className="text-xs text-slate-500 mt-1">{car.acrissCode}</div>
                         <div className="text-xs text-slate-500 mt-1">Mileage: {car.mileage}</div>
                       </td>
-                      <td className={`py-4 px-3 align-top text-slate-700 ${dropOffExists ? 'border-b border-slate-100' : ''}`}>
+                      <td className="py-4 px-3 align-top text-slate-700 border-b border-slate-100">
                         <div>Rate: <span className="font-bold text-slate-900">{car.ratePlan}</span></div>
                       </td>
                     </tr>
                     
-                    {dropOffExists && (
-                      <tr className="border-b border-slate-100">
+                    <tr className="border-b border-slate-100">
                         <td className="py-2 px-3 align-top pb-6">
                            <input 
                              type="text" 
@@ -1226,7 +1217,6 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                           <div>Total: <span className="font-bold text-slate-900">{car.totalPrice}</span></div>
                         </td>
                       </tr>
-                    )}
                   </React.Fragment>
                   );
                 })}
