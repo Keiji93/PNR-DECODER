@@ -461,7 +461,6 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                 <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 8%;">Cabin</th>
                 <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 8%;">Duration</th>
                 <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 6%;">Layover</th>
-                <th align="left" style="text-align: left; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-weight: normal; color: #1e293b; width: 14%;">Aircraft</th>
               </tr>
             </thead>
             <tbody>
@@ -491,7 +490,6 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                   ${flight.stops && flight.stops !== '0' && flight.stops !== '-' ? `<div style="font-size: 11px; color: #ea580c; margin-top: 4px; font-weight: bold; text-transform: uppercase;">${flight.stops} Stop${flight.stops === '1' ? '' : 's'}</div>` : ''}
                 </td>
                 <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #475569;">${flight.layover || '-'}</td>
-                <td align="left" style="text-align: left; padding: 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #475569;">${flight.aircraft || '-'}</td>
               </tr>
           `;
         });
@@ -657,10 +655,10 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
       flightBounds.forEach((bound) => {
         const titleName = language === 'fr' ? (bound.type === 'Outbound' ? 'Aller' : bound.type === 'Return' ? 'Retour' : bound.type) : bound.type;
         text += `${titleName}: ${bound.departureCity} -> ${bound.arrivalCity}   ${bound.totalDuration}\n`;
-        text += `Date\tFlight\tCarrier\tDeparts\tArrives\tCabin\tDuration\tLayover\tAircraft\n`;
+        text += `Date\tFlight\tCarrier\tDeparts\tArrives\tCabin\tDuration\tLayover\n`;
         bound.flights.forEach((flight) => {
           const stopsText = flight.stops && flight.stops !== '0' && flight.stops !== '-' ? ` (${flight.stops} Stop${flight.stops === '1' ? '' : 's'})` : '';
-          text += `${flight.departureDate || '-'}\t${flight.flightNumber || '-'}\t${flight.airline || '-'}\t${flight.departureAirportCode} ${flight.departureTime}\t${flight.arrivalAirportCode} ${flight.arrivalTime}\t${flight.cabinClass || '-'}\t${flight.duration || '-'}${stopsText}\t${flight.layover || '-'}\t${flight.aircraft || '-'}\n`;
+          text += `${flight.departureDate || '-'}\t${flight.flightNumber || '-'}\t${flight.airline || '-'}\t${flight.departureAirportCode} ${flight.departureTime}\t${flight.arrivalAirportCode} ${flight.arrivalTime}\t${flight.cabinClass || '-'}\t${flight.duration || '-'}${stopsText}\t${flight.layover || '-'}\n`;
         });
         text += `\n`;
       });
@@ -820,7 +818,6 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                   <th className="py-2 px-3 font-medium w-[8%]">Cabin</th>
                   <th className="py-2 px-3 font-medium w-[8%]">Duration</th>
                   <th className="py-2 px-3 font-medium w-[6%]">Layover</th>
-                  <th className="py-2 px-3 font-medium w-[14%]">Aircraft</th>
                 </tr>
               </thead>
               <tbody className="text-sm text-slate-900">
@@ -861,7 +858,6 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                       )}
                     </td>
                     <td className="py-4 px-3 align-top text-slate-600">{flight.layover || '-'}</td>
-                    <td className="py-4 px-3 align-top text-slate-600">{flight.aircraft || '-'}</td>
                   </tr>
                 ))}
               </tbody>

@@ -14,7 +14,6 @@ export interface FlightSegment {
   cabinClass?: string;
   duration?: string;
   layover?: string;
-  aircraft?: string;
   status?: string;
   price?: string;
   stops?: string;
