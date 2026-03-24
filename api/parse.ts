@@ -66,6 +66,19 @@ You MUST return a valid JSON object matching this exact structure (do not includ
       "price": "The individual price for this specific train segment (e.g., '184.00 EUR' or '138.00 EUR'). It usually appears after the ticket type like 'E-billet'."
     }
   ],
+  "hotels": [
+    {
+      "checkInDate": "e.g., '14MAR'",
+      "checkOutDate": "e.g., '17MAR'",
+      "hotelName": "e.g., 'Holiday Inn Express Ogden by IHG'",
+      "address": "e.g., '2245 S 1200 W, Ogden UT 84407'",
+      "amenities": "e.g., 'Free breakfast'",
+      "bedType": "e.g., 'King'",
+      "avgPerNight": "e.g., 'EUR 104'",
+      "estimatedTotal": "e.g., 'EUR 355.12'",
+      "cancellationPolicy": "e.g., 'Cancel before 30/03/2026 18:00 local hotel time.'"
+    }
+  ],
   "priceBreakdown": {
     "ticket": "Ticket price",
     "accommodation": "Accommodation price",

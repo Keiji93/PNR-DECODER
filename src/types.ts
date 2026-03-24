@@ -40,10 +40,24 @@ export interface PriceBreakdown {
   totalPrice?: string;
 }
 
+export interface HotelSegment {
+  checkInDate: string;
+  checkOutDate: string;
+  hotelName: string;
+  address: string;
+  amenities: string;
+  bedType: string;
+  avgPerNight: string;
+  estimatedTotal: string;
+  cancellationPolicy: string;
+}
+
 export interface ParsedPNR {
+  pnr: string;
   bookingReference: string;
-  passengers: string[];
-  flights?: FlightSegment[];
+  flights: FlightSegment[];
   trains?: TrainSegment[];
+  hotels?: HotelSegment[];
   priceBreakdown?: PriceBreakdown;
+  passengers: string[];
 }

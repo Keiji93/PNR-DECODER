@@ -548,6 +548,23 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
         `;
       });
 
+      const hotels = itinerary.hotels || [];
+      hotels.forEach((hotel) => {
+        html += `
+        <div style="margin-bottom: 24px;">
+          <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: bold;">${hotel.checkInDate} - ${hotel.checkOutDate}</p>
+          <p style="margin: 0; font-size: 15px; font-weight: bold; color: #000;">${hotel.hotelName}</p>
+          <p style="margin: 0 0 16px 0; font-size: 14px;">${hotel.address}</p>
+          
+          <p style="margin: 0; font-size: 14px;">Amenities: ${hotel.amenities}</p>
+          <p style="margin: 0; font-size: 14px;">Bed Type: ${hotel.bedType}</p>
+          <p style="margin: 0; font-size: 14px;">Avg. / Night: ${hotel.avgPerNight}</p>
+          <p style="margin: 0; font-size: 14px;">Estimated Total: ${hotel.estimatedTotal}</p>
+          <p style="margin: 12px 0 0 0; font-size: 14px; font-weight: bold; color: #000;">${hotel.cancellationPolicy}</p>
+        </div>
+        `;
+      });
+
       if (type === 'offer' || type === 'modification') {
         const offers = itineraryOffers[itIdx] || [];
         if (offers.length > 0) {
@@ -677,6 +694,18 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
         text += `\n`;
       });
 
+      const hotels = itinerary.hotels || [];
+      hotels.forEach((hotel) => {
+        text += `${hotel.checkInDate} - ${hotel.checkOutDate}\n`;
+        text += `**${hotel.hotelName}**\n`;
+        text += `${hotel.address}\n\n`;
+        text += `Amenities: ${hotel.amenities}\n`;
+        text += `Bed Type: ${hotel.bedType}\n`;
+        text += `Avg. / Night: ${hotel.avgPerNight}\n`;
+        text += `Estimated Total: ${hotel.estimatedTotal}\n`;
+        text += `**${hotel.cancellationPolicy}**\n\n`;
+      });
+
       if (type === 'offer' || type === 'modification') {
         const offers = itineraryOffers[itIdx] || [];
         offers.forEach((offer, index) => {
@@ -765,6 +794,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
     const routeTitle = getRouteTitle(itinerary);
     const flights = itinerary.flights || [];
     const trains = itinerary.trains || [];
+    const hotels = itinerary.hotels || [];
 
     return (
       <div key={index} className={`bg-white shadow-sm border border-slate-200 p-8 overflow-x-auto ${isAdditional ? 'rounded-xl mt-6' : 'rounded-b-xl'}`}>
@@ -934,10 +964,24 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
             )}
           </div>
         ))}
+
+        {hotels.map((hotel, idx) => (
+          <div key={`hotel-${idx}`} className="mb-6 last:mb-0">
+            <div className="text-sm font-semibold mb-2">{hotel.checkInDate} - {hotel.checkOutDate}</div>
+            <div className="text-base font-bold text-black">{hotel.hotelName}</div>
+            <div className="text-sm text-slate-700">{hotel.address}</div>
+            <div className="h-4"></div>
+            <div className="text-sm text-slate-700">Amenities: {hotel.amenities}</div>
+            <div className="text-sm text-slate-700">Bed Type: {hotel.bedType}</div>
+            <div className="text-sm text-slate-700">Avg. / Night: {hotel.avgPerNight}</div>
+            <div className="text-sm text-slate-700">Estimated Total: {hotel.estimatedTotal}</div>
+            <div className="text-sm font-bold text-black mt-2">{hotel.cancellationPolicy}</div>
+          </div>
+        ))}
         
-        {flights.length === 0 && trains.length === 0 && (
+        {flights.length === 0 && trains.length === 0 && hotels.length === 0 && (
           <div className="text-center p-8 text-slate-500">
-            No flight or train segments could be parsed.
+            No flight, train, or hotel segments could be parsed.
           </div>
         )}
 
