@@ -114,7 +114,8 @@ If some information is missing, do your best to infer or leave it blank. Omit th
     if (parsedData.flights && Array.isArray(parsedData.flights)) {
       const currentYear = new Date().getFullYear();
       
-      for (const f of parsedData.flights) {
+      for (let i = 0; i < parsedData.flights.length; i++) {
+        const f = parsedData.flights[i];
         if (f.departureDate && f.departureTime && f.arrivalDate && f.arrivalTime && f.departureAirportCode && f.arrivalAirportCode) {
           const depTzMatch = airportTimezones.find((a: any) => a.code === f.departureAirportCode);
           const arrTzMatch = airportTimezones.find((a: any) => a.code === f.arrivalAirportCode);
@@ -142,6 +143,37 @@ If some information is missing, do your best to infer or leave it blank. Omit th
                 const h = Math.floor(diffMins / 60);
                 const m = diffMins % 60;
                 f.duration = h > 0 ? `${h}h ${m}m` : `${m}m`;
+              }
+            }
+            
+            if (i > 0) {
+              const prevF = parsedData.flights[i - 1];
+              if (prevF.arrivalAirportCode === f.departureAirportCode && prevF.arrivalDate && prevF.arrivalTime) {
+                 const prevArrTzMatch = airportTimezones.find((a: any) => a.code === prevF.arrivalAirportCode);
+                 if (prevArrTzMatch) {
+                    const prevArrStr = `${currentYear}-${prevF.arrivalDate.replace(/ /g, '')} ${prevF.arrivalTime}`;
+                    const mPrevArr = moment.tz(prevArrStr, formats, prevArrTzMatch.timezone);
+                    
+                    if (mPrevArr.isValid() && mDep.isValid()) {
+                       let layoverMins = mDep.diff(mPrevArr, 'minutes');
+                       
+                       if (layoverMins < 0 && layoverMins > -24 * 60) {
+                          mDep.add(1, 'days');
+                          layoverMins = mDep.diff(mPrevArr, 'minutes');
+                       } else if (layoverMins < -24 * 60) {
+                          mDep.add(1, 'years');
+                          layoverMins = mDep.diff(mPrevArr, 'minutes');
+                       }
+                       
+                       if (layoverMins >= 0 && layoverMins < 48 * 60) {
+                          const lh = Math.floor(layoverMins / 60);
+                          const lm = layoverMins % 60;
+                          
+                          prevF.layover = lh > 0 ? `${lh}h ${lm}m` : `${lm}m`;
+                          f.layover = '-'; 
+                       }
+                    }
+                 }
               }
             }
           }
