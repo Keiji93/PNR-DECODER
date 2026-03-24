@@ -622,6 +622,8 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
         `;
         
         cars.forEach((car) => {
+          const isSameLocation = !car.dropOffLocation || car.dropOffLocation === car.pickUpLocation;
+          const displayDropOffName = isSameLocation ? (car.dropOffLocationName || car.pickUpLocationName) : car.dropOffLocationName;
           
           html += `
               <tr>
@@ -654,7 +656,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                 </td>
                 <td align="left" style="text-align: left; padding: 0px 12px 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #334155;">
                   <div style="font-size: 11px; font-weight: bold; text-transform: uppercase; color: #64748b; margin-bottom: 4px;">DROP-OFF</div>
-                  ${car.dropOffLocationName ? `<div style="font-weight: bold; color: #0f172a; margin-bottom: 2px;">${car.dropOffLocationName}</div>` : ''}
+                  ${displayDropOffName ? `<div style="font-weight: bold; color: #0f172a; margin-bottom: 2px;">${displayDropOffName}</div>` : ''}
                   <div style="font-size: 13px;">${car.dropOffLocation || car.pickUpLocation}</div>
                 </td>
                 <td align="left" style="text-align: left; padding: 0px 12px 16px 12px; border-bottom: 1px solid #e2e8f0; border-top: none; border-left: none; border-right: none; vertical-align: top; color: #475569;">
@@ -817,6 +819,8 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
         text += `--- Car Rental ---\n`;
         text += `Supplier\tPick-up / Drop-off\tLocation\tModel & Details\tPrice\n`;
         cars.forEach((car) => {
+          const isSameLocation = !car.dropOffLocation || car.dropOffLocation === car.pickUpLocation;
+          const displayDropOffName = isSameLocation ? (car.dropOffLocationName || car.pickUpLocationName) : car.dropOffLocationName;
           
           const pLocName = car.pickUpLocationName ? `${car.pickUpLocationName}, ` : '';
           const pLoc = `PICK-UP: ${pLocName}${car.pickUpLocation}`;
@@ -824,7 +828,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
           
           text += `${car.supplier}\t${car.pickUpDate || '-'} ${car.pickUpTime || '-'}\t${pLoc}\t${modelDetails}\tRate: ${car.ratePlan}\n`;
           
-          const dLocName = car.dropOffLocationName ? `${car.dropOffLocationName}, ` : '';
+          const dLocName = displayDropOffName ? `${displayDropOffName}, ` : '';
           const dLoc = `DROP-OFF: ${dLocName}${car.dropOffLocation || car.pickUpLocation}`;
           text += `\t${car.dropOffDate || '-'} ${car.dropOffTime || '-'}\t${dLoc}\t\tTotal: ${car.totalPrice}\n`;
         });
@@ -1143,6 +1147,8 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
               </thead>
               <tbody className="text-sm text-slate-900">
                 {cars.map((car, idx) => {
+                  const isSameLocation = !car.dropOffLocation || car.dropOffLocation === car.pickUpLocation;
+                  const displayDropOffName = isSameLocation ? (car.dropOffLocationName || car.pickUpLocationName) : car.dropOffLocationName;
                   
                   return (
                   <React.Fragment key={`car-${idx}`}>
@@ -1206,7 +1212,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Drop-off</div>
                            <input 
                              type="text" 
-                             value={car.dropOffLocationName || ''} 
+                             value={displayDropOffName || ''} 
                              onChange={(e) => handleCarChange(index, idx, 'dropOffLocationName', e.target.value)}
                              className="text-sm font-bold text-slate-800 border border-slate-300 rounded px-2 py-1 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full mb-1"
                              placeholder="Drop-off Airport / Station"
