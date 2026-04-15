@@ -141,6 +141,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
   const [customerName, setCustomerName] = useState('');
   const [travellerName, setTravellerName] = useState('');
   const [language, setLanguage] = useState<'en' | 'fr'>('en');
+  const [selectedClient, setSelectedClient] = useState<string>('none');
   
   // Additional itineraries state
   const [additionalItineraries, setAdditionalItineraries] = useState<ParsedPNR[]>([]);
