@@ -335,8 +335,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
   const groupFlightsIntoBounds = (flights: FlightSegment[]): FlightBound[] => {
     if (!flights || flights.length === 0) return [];
     
-    const layovers = flights.map((f, i) => {
-      if (i === 0) return 0;
+    const layoverMinsAfterFlight = flights.map((f) => {
       let mins = 0;
       const hl = (f.layover || '').match(/(\d+)\s*h/i);
       const ml = (f.layover || '').match(/(\d+)\s*m/i);
@@ -353,9 +352,9 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
     let maxLayoverIdx = -1;
     let maxLayoverMins = -1;
     if (isRoundTrip) {
-      for (let i = 1; i < flights.length; i++) {
-        if (layovers[i] > maxLayoverMins) {
-          maxLayoverMins = layovers[i];
+      for (let i = 0; i < layoverMinsAfterFlight.length - 1; i++) {
+        if (layoverMinsAfterFlight[i] > maxLayoverMins) {
+          maxLayoverMins = layoverMinsAfterFlight[i];
           maxLayoverIdx = i;
         }
       }
@@ -373,11 +372,12 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
         (curr.departureCity && curr.departureCity === prev.arrivalCity);
         
       const isSurfaceSector = !departsFromPrevArrival;
-      const isStopover = layovers[i] >= 12 * 60; // 12+ hours
-      const isReturnPoint = isRoundTrip && i === maxLayoverIdx && maxLayoverMins > 0;
+      const isStopover = layoverMinsAfterFlight[i - 1] >= 12 * 60; // 12+ hours wait before this flight
+      const isReturnPoint = isRoundTrip && i - 1 === maxLayoverIdx && maxLayoverMins > 0;
 
       if (isSurfaceSector || isStopover || isReturnPoint) {
         bounds.push({ type: '', flights: currentBound, departureCity: '', arrivalCity: '', totalDuration: '' });
+
         currentBound = [curr];
       } else {
         currentBound.push(curr);
