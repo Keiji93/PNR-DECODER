@@ -27,11 +27,11 @@ export default async function handler(req: any, res: any) {
     
 You MUST return a valid JSON object matching this exact structure (do not include markdown formatting, just the raw JSON). CRITICAL: You MUST extract and maintain the exact chronological order of flights, trains, hotels, and cars as they appear in the raw text. Do NOT invert the itinerary:
 {
-  "bookingReference": "The 6-character alphanumeric PNR / Booking Reference code. If not found, return 'UNKNOWN'.",
-  "passengers": ["List of passenger names found in the PNR. Format as 'First Last' if possible."],
+  "bookingReference": "The 6-character alphanumeric PNR / Booking Reference code. If not found, return 'UNKNOWN'. CRITICAL: Do NOT confuse a flight number string like 'TO7071' or 'AF7349' for a booking reference.",
+  "passengers": ["List of passenger names found in the PNR. Format as 'First Last' if possible. CRITICAL: Do NOT confuse 6-letter city routing pairs like 'MPLORY' or 'CDGMSP' as passenger names."],
   "flights": [
     {
-      "airline": "The FULL name of the airline (e.g., 'Uzbekistan Airways', 'British Airways'). Do NOT output just the 2-letter carrier code (e.g., do not output 'HY'). Translate it. If unknown, leave it blank rather than giving a 2-letter code.",
+      "airline": "The FULL name of the airline (e.g., 'Uzbekistan Airways', 'British Airways'). Do NOT output just the 2-letter carrier code. CRITICAL: In strings like 'TO7071', 'TO' is the airline code (Transavia). Do NOT ignore the flight just because it spans a single line.",
       "flightNumber": "The 2-character carrier code AND the flight number combined (e.g., 'HY 045' or 'MS 758'). DO NOT forget the carrier code.",
       "departureAirportCode": "3-letter IATA code for departure airport. CRITICAL: In the PNR routing string (e.g., 'MRSCDG' or 'CDGMSP'), the FIRST 3 letters ('MRS' or 'CDG') are ALWAYS the Departure airport. DO NOT INVERT IN ANY CIRCUMSTANCE.",
       "departureAirportName": "The FULL official name of the departure airport (e.g., 'Tashkent Intl Airport'). Do NOT output the 3-letter code here. If unknown, output City + Airport.",
