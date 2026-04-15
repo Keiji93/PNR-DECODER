@@ -399,16 +399,21 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
 
       let totalMins = 0;
       let durationStr = '';
-      b.flights.forEach(f => {
+      b.flights.forEach((f, fIdx) => {
         const hm = (f.duration || '').match(/(\d+)\s*h/i);
         const mm = (f.duration || '').match(/(\d+)\s*m/i);
         if (hm) totalMins += parseInt(hm[1], 10) * 60;
         if (mm) totalMins += parseInt(mm[1], 10);
         
-        const hl = (f.layover || '').match(/(\d+)\s*h/i);
-        const ml = (f.layover || '').match(/(\d+)\s*m/i);
-        if (hl) totalMins += parseInt(hl[1], 10) * 60;
-        if (ml) totalMins += parseInt(ml[1], 10);
+        if (fIdx < b.flights.length - 1) {
+          const hl = (f.layover || '').match(/(\d+)\s*h/i);
+          const ml = (f.layover || '').match(/(\d+)\s*m/i);
+          if (hl) totalMins += parseInt(hl[1], 10) * 60;
+          if (ml) totalMins += parseInt(ml[1], 10);
+        } else {
+          // The last flight in a bound should not display a layover (since it arrived at the destination)
+          f.layover = '-';
+        }
       });
       if (totalMins > 0) {
          const h = Math.floor(totalMins / 60);
