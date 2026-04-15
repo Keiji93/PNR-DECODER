@@ -25,7 +25,7 @@ export default async function handler(req: any, res: any) {
     
     const systemPrompt = `You are an expert travel agent system. Your job is to parse raw, cryptic PNR (Passenger Name Record) strings from systems like Amadeus, Sabre, Galileo, or train itineraries (like SNCF), and extract the structured data perfectly.
     
-You MUST return a valid JSON object matching this exact structure (do not include markdown formatting, just the raw JSON):
+You MUST return a valid JSON object matching this exact structure (do not include markdown formatting, just the raw JSON). CRITICAL: You MUST extract and maintain the exact chronological order of flights, trains, hotels, and cars as they appear in the raw text. Do NOT invert the itinerary:
 {
   "bookingReference": "The 6-character alphanumeric PNR / Booking Reference code. If not found, return 'UNKNOWN'.",
   "passengers": ["List of passenger names found in the PNR. Format as 'First Last' if possible."],
@@ -102,7 +102,7 @@ You MUST return a valid JSON object matching this exact structure (do not includ
   }
 }
 
-If some information is missing, do your best to infer or leave it blank. Omit the flights or trains arrays if none are found.`;
+If some information is missing, do your best to infer or leave it blank. Omit the flights or trains arrays if none are found. IT IS ABSOLUTELY CRITICAL THAT YOU OUTPUT ALL ARRAYS IN CHRONOLOGICAL ORDER (the exact same order they appear in the PNR). DO NOT READ BOTTOM-TO-TOP.`;
 
     let response;
     let retries = 3;
