@@ -334,27 +334,53 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
 
   const groupFlightsIntoBounds = (flights: FlightSegment[]): FlightBound[] => {
     if (!flights || flights.length === 0) return [];
+    
+    const layovers = flights.map((f, i) => {
+      if (i === 0) return 0;
+      let mins = 0;
+      const hl = (f.layover || '').match(/(\d+)\s*h/i);
+      const ml = (f.layover || '').match(/(\d+)\s*m/i);
+      if (hl) mins += parseInt(hl[1], 10) * 60;
+      if (ml) mins += parseInt(ml[1], 10);
+      return mins;
+    });
+
+    const isRoundTrip = flights.length > 1 && (
+      (flights[flights.length - 1].arrivalAirportCode && flights[flights.length - 1].arrivalAirportCode === flights[0].departureAirportCode) ||
+      (flights[flights.length - 1].arrivalCity && flights[flights.length - 1].arrivalCity === flights[0].departureCity)
+    );
+
+    let maxLayoverIdx = -1;
+    let maxLayoverMins = -1;
+    if (isRoundTrip) {
+      for (let i = 1; i < flights.length; i++) {
+        if (layovers[i] > maxLayoverMins) {
+          maxLayoverMins = layovers[i];
+          maxLayoverIdx = i;
+        }
+      }
+    }
+
     const bounds: FlightBound[] = [];
     let currentBound: FlightSegment[] = [flights[0]];
 
     for (let i = 1; i < flights.length; i++) {
       const prev = flights[i - 1];
       const curr = flights[i];
-      const first = flights[0];
 
       const departsFromPrevArrival = 
         (curr.departureAirportCode && curr.departureAirportCode === prev.arrivalAirportCode) ||
         (curr.departureCity && curr.departureCity === prev.arrivalCity);
         
-      const arrivesAtOriginalDeparture = 
-        (curr.arrivalAirportCode && curr.arrivalAirportCode === first.departureAirportCode) ||
-        (curr.arrivalCity && curr.arrivalCity === first.departureCity);
+      const isSurfaceSector = !departsFromPrevArrival;
+      const isStopover = layovers[i] >= 12 * 60; // 12+ hours
+      const isReturnPoint = isRoundTrip && i === maxLayoverIdx && maxLayoverMins > 0;
 
-      if (departsFromPrevArrival && !arrivesAtOriginalDeparture) {
-        currentBound.push(curr);
-      } else {
+      if (isSurfaceSector || isStopover || isReturnPoint) {
         bounds.push({ type: '', flights: currentBound, departureCity: '', arrivalCity: '', totalDuration: '' });
         currentBound = [curr];
+      } else {
+        currentBound.push(curr);
       }
     }
     if (currentBound.length > 0) {
