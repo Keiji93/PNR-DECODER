@@ -456,6 +456,32 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
         : `Refundable against a fee of ${feeText} in case of cancellation`;
     }
   };
+  const checkRequiresRequestId = (): boolean => {
+    if (selectedClient === 'ciar') return true;
+    if (selectedClient === 'boston_profile') {
+      for (const it of allItineraries) {
+        if (!it.flights) continue;
+        const bounds = groupFlightsIntoBounds(it.flights);
+        for (const b of bounds) {
+          let totalMins = 0;
+          b.flights.forEach((f, fIdx) => {
+             const hm = (f.duration || '').match(/(\d+)\s*h/i);
+             const mm = (f.duration || '').match(/(\d+)\s*m/i);
+             if (hm) totalMins += parseInt(hm[1], 10) * 60;
+             if (mm) totalMins += parseInt(mm[1], 10);
+             if (fIdx < b.flights.length - 1) {
+                const hl = (f.layover || '').match(/(\d+)\s*h/i);
+                const ml = (f.layover || '').match(/(\d+)\s*m/i);
+                if (hl) totalMins += parseInt(hl[1], 10) * 60;
+                if (ml) totalMins += parseInt(ml[1], 10);
+             }
+          });
+          if (totalMins > 360) return true;
+        }
+      }
+    }
+    return false;
+  };
 
   const generateEmailHtml = (type: 'itinerary' | 'offer' | 'modification' = 'itinerary', variantIndex: number = 0) => {
     let html = `<div style="font-family: Arial, sans-serif; font-weight: normal; color: #000; max-width: 1000px; line-height: 1.5;">`;
@@ -761,6 +787,15 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
     });
 
     if (type === 'offer' || type === 'modification') {
+      const reqId = checkRequiresRequestId();
+      if (reqId) {
+        if (language === 'fr') {
+          html += `  <p style="margin-top: 24px; margin-bottom: 24px; font-weight: normal;"><strong>Afin de finaliser la réservation, veuillez fournir l'ID de demande (Request ID).</strong></p>`;
+        } else {
+          html += `  <p style="margin-top: 24px; margin-bottom: 24px; font-weight: normal;"><strong>In order to complete the booking, please provide the Request ID.</strong></p>`;
+        }
+      }
+
       if (language === 'fr') {
         html += `  <p style="margin-bottom: 16px; font-weight: normal;">${getOutroSentence('fr', type, totalOffers, variantIndex)}</p>`;
         html += `  <p style="margin-bottom: 0; font-weight: normal;">Cordialement,</p>`;
@@ -928,6 +963,15 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
     });
 
     if (type === 'offer' || type === 'modification') {
+      const reqId = checkRequiresRequestId();
+      if (reqId) {
+        if (language === 'fr') {
+          text += `** Afin de finaliser la réservation, veuillez fournir l'ID de demande (Request ID). **\n\n`;
+        } else {
+          text += `** In order to complete the booking, please provide the Request ID. **\n\n`;
+        }
+      }
+
       if (language === 'fr') {
         text += `${getOutroSentence('fr', type, totalOffers, variantIndex)}\n\n`;
         text += `Cordialement,`;
@@ -1463,7 +1507,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
             </select>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div>
             <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Customer Name</label>
             <input 
@@ -1483,6 +1527,19 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00b87c] focus:border-transparent" 
               placeholder="e.g. Jane Doe" 
             />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Corporate Policy</label>
+            <select 
+              value={selectedClient} 
+              onChange={e => setSelectedClient(e.target.value)} 
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00b87c] focus:border-transparent bg-white"
+            >
+              <option value="none">None (Standard)</option>
+              <option value="ciar">CIAR</option>
+              <option value="boston_profile">Boston Scientific (Profile)</option>
+              <option value="boston_hcp">Boston Scientific (HCP)</option>
+            </select>
           </div>
         </div>
         <div className="mt-5 flex flex-wrap justify-end gap-3">
