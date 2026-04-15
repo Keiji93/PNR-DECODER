@@ -791,7 +791,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
       const reqId = checkRequiresRequestId();
       if (reqId) {
         if (language === 'fr') {
-          html += `  <p style="margin-top: 24px; margin-bottom: 24px; font-weight: normal;"><strong>Afin de finaliser la réservation, veuillez fournir l'ID de demande (Request ID).</strong></p>`;
+          html += `  <p style="margin-top: 24px; margin-bottom: 24px; font-weight: normal;"><strong>Afin de finaliser la réservation, veuillez fournir le Request ID.</strong></p>`;
         } else {
           html += `  <p style="margin-top: 24px; margin-bottom: 24px; font-weight: normal;"><strong>In order to complete the booking, please provide the Request ID.</strong></p>`;
         }
@@ -967,7 +967,7 @@ export function ItineraryView({ data }: { data: ParsedPNR }) {
       const reqId = checkRequiresRequestId();
       if (reqId) {
         if (language === 'fr') {
-          text += `** Afin de finaliser la réservation, veuillez fournir l'ID de demande (Request ID). **\n\n`;
+          text += `** Afin de finaliser la réservation, veuillez fournir le Request ID. **\n\n`;
         } else {
           text += `** In order to complete the booking, please provide the Request ID. **\n\n`;
         }
